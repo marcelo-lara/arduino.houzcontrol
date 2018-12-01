@@ -39,7 +39,8 @@ public:
 	deviceData getData();
 	void pushData(deviceData device);
 
-	//radio
+	//TODO: move out
+	//radio 
 	bool radioReady();
 	bool radioSend(deviceData device);
 	bool radioSend(deviceData device, byte nodeId);
