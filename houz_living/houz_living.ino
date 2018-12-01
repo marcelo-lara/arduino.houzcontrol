@@ -17,7 +17,7 @@
 #include <HouzIrCodes.h>
 #include <IRremote.h>
 #include <HouzInfrared.h>
-#include <HouzDevices.h>
+#include <Houz.h>
 
 //serial setup
 #define serialTx	1	//fixed
@@ -53,7 +53,7 @@ bool	dungeonChanged = false;
 u32		dungeonPreStatus;
 
 
-HouzDevices houz(living_node, radio, swLight, Serial, ioDataPin, ioLatchPin, ioClockPin);
+Houz houz(living_node, radio, swLight, Serial, ioDataPin, ioLatchPin, ioClockPin);
 
 void setup() {
 	Serial.begin(115200);

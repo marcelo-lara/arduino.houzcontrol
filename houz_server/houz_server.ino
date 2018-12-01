@@ -4,7 +4,7 @@
  Updated:	23-Jan-18
  Author:	DarkAngel
 */
-#include <HouzDevices.h>
+#include <Houz.h>
 
 // radio setup //////////////////////////////////////////////////////////////
 //wiring: D8>CS | D9>CE | (sck)D13>5 | (mosi)D11>6 | (miso)D12>7
@@ -12,7 +12,7 @@
 #define rfCE 9   //RF pin 3 (CE)
 #define rfCS 8  //RF pin 4 (CS)
 RF24 radio(rfCE, rfCS);
-HouzDevices houz(server_node, radio, rfRecvLed, Serial);
+Houz houz(server_node, radio, rfRecvLed, Serial);
 
 void setup() {
 	Serial.begin(115200);

@@ -1,3 +1,6 @@
+#ifndef HouzDevicesModel_h
+#define HouzDevicesModel_h
+
 struct deviceData {
 public:
 	u32  raw;
@@ -32,3 +35,5 @@ public:
 
 	unsigned long nextStep;
 };
+
+#endif

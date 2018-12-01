@@ -3,6 +3,7 @@
 
 #include <HouzDevicesModel.h>
 #include <HouzDevicesNodes.h>
+#include <HouzDevicesCodec.h>
 
 #include <HouzSonyRemote.h>
 #include <HouzIrCodes.h>
@@ -27,10 +28,10 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Declarations
 
-class HouzDevices{
+class Houz{
 public:
-	HouzDevices(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial);
-	HouzDevices(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial, u8 dataPin, u8 latchPin, u8 clockPin);
+	Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial);
+	Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial, u8 dataPin, u8 latchPin, u8 clockPin);
 	void setup();
 
 	//commands
@@ -55,16 +56,17 @@ public:
 	bool getIo(u32 io);
 
 	//helpers
-	unsigned long StrToHex(char str[]);
-	unsigned long StrToHex(String str);
-	unsigned long encode(u8 _cmd, u8 deviceId, u32 devicePayload);
-	deviceData decode(String str);
-	deviceData decode(u32 rawData, u32 rfNodeStation);
+	// unsigned long StrToHex(char str[]);
+	// unsigned long StrToHex(String str);
+	//unsigned long encode(u8 _cmd, u8 deviceId, u32 devicePayload);
+	// deviceData decode(String str);
+	// deviceData decode(u32 rawData, u32 rfNodeStation);
 	deviceData getData();
 	
 	void statusLedBlink();
 
 private:
+	HouzDevicesCodec* codec;
 	void init(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream & serial);
 	Anim statusLedAnim;
 	void statusLedRender();

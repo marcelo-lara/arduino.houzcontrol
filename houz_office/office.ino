@@ -33,7 +33,7 @@ IRsend irsend;
 #define rfCE				9 //RF pin 3 (CE)
 #define rfCS				10//RF pin 4 (CS)
 RF24 radio(rfCE, rfCS);
-HouzDevices houz(office_node, radio, ceilingLightLed, Serial);
+Houz houz(office_node, radio, ceilingLightLed, Serial);
 
 
 ///////////////////////////
@@ -52,7 +52,7 @@ void weather_setup() {
 	bme280.parameter.tempOversampling =		0b101;	//Setup Temperature Ovesampling
 	bme280.parameter.pressOversampling =	0b101;	//Setup Pressure Oversampling 
 	bme280.parameter.pressureSeaLevel =		1013.25;//default value of 1013.25 hPa
-	bme280.parameter.tempOutsideCelsius =	15;		//default value of 15°C
+	bme280.parameter.tempOutsideCelsius =	15;		//default value of 15ï¿½C
 	bme280_online = (bme280.init() ==		0x60);
 
 	Serial.print("bme280: ");

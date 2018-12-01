@@ -1,5 +1,5 @@
 {
     "board": "arduino:avr:uno",
     "port": "COM3",
-    "sketch": "houz_server\\houz_server.ino"
+    "sketch": "houz_living\\houz_living.ino"
 }

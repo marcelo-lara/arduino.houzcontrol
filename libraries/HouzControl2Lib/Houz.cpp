@@ -8,7 +8,7 @@ TODO:
 */
 
 #include "Arduino.h"
-#include "HouzDevices.h"
+#include "Houz.h"
 #include <QueueArray.h>
 
 #include <RF24.h>
@@ -33,11 +33,11 @@ TODO:
 #define rf_led_max		0xFF
 
 bool server_online = false;
-HouzDevices::HouzDevices(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial) {
+Houz::Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial) {
 	init(NodeId, _radio, _rfStatusLed, serial);
 };
 
-HouzDevices::HouzDevices(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin) {
+Houz::Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin) {
 	//74HC595 shift register setup
 	ioReady = true;
 	dataPin = _dataPin;
@@ -57,7 +57,7 @@ HouzDevices::HouzDevices(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &s
 	init(NodeId, _radio, _rfStatusLed, serial);
 };
 
-void HouzDevices::init(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial) {
+void Houz::init(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial) {
 	console = &serial;
 	radio = &_radio;
 	node_id = NodeId;
@@ -66,7 +66,7 @@ void HouzDevices::init(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &ser
 	analogWrite(rfStatusLed, rf_led_low);
 }
 
-void HouzDevices::setup() {
+void Houz::setup() {
 	wdt_enable(WDTO_8S);
 	radioSetup();
 	
@@ -83,7 +83,7 @@ void HouzDevices::setup() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Commands
 
-bool HouzDevices::hasData() {
+bool Houz::hasData() {
 	wdt_reset(); //watchdog 
 
 	//listeners
@@ -96,16 +96,16 @@ bool HouzDevices::hasData() {
 	return !commandsQueue.isEmpty();
 };
 
-void HouzDevices::pushData(deviceData device) {
+void Houz::pushData(deviceData device) {
 	//console->println("[commandsQueue] + " + deviceToString(device));
 	commandsQueue.enqueue(device);
 };
 
-deviceData HouzDevices::getData() {
+deviceData Houz::getData() {
 	return commandsQueue.dequeue();
 };
 
-void HouzDevices::printToHost(byte result, byte node, u32 message){
+void Houz::printToHost(byte result, byte node, u32 message){
 	console->print(F("["));
 	console->print(result);
 	console->print(F("N"));
@@ -117,22 +117,13 @@ void HouzDevices::printToHost(byte result, byte node, u32 message){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Helpers 
-unsigned long HouzDevices::StrToHex(char str[])
-{
-  return (long)strtol(str, 0, 16);
-};
-unsigned long HouzDevices::StrToHex(String str)
-{
-  return (long)strtol(str.c_str(), 0, 16);
-};
-
-void HouzDevices::statusLedBlink() {
+void Houz::statusLedBlink() {
 	statusLedAnim.on = true;
 	statusLedAnim.step = 0;
 	statusLedAnim.stepCount = 4;
 };
 
-void HouzDevices::statusLedRender() {
+void Houz::statusLedRender() {
 	if (!statusLedAnim.on) return;
 	if (statusLedAnim.nextStep > millis()) return;
 	statusLedAnim.nextStep = millis() + 100;
@@ -156,7 +147,7 @@ void HouzDevices::statusLedRender() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Radio Stuff 
-void HouzDevices::radioSetup()
+void Houz::radioSetup()
 {
 	radio_status = 0;
 	pinMode(rfStatusLed, OUTPUT);
@@ -196,7 +187,7 @@ void HouzDevices::radioSetup()
 	analogWrite(rfStatusLed, rf_led_idle);
 };
 
-void HouzDevices::setPipes() {
+void Houz::setPipes() {
 	switch (node_id)
 	{
 	case server_node: 
@@ -226,7 +217,7 @@ void HouzDevices::setPipes() {
 	}
 };
 
-String HouzDevices::node_name() {
+String Houz::node_name() {
 	switch (node_id){
 	case server_node:	return F("server_node"); 
 	case office_node:	return F("office_node");
@@ -237,14 +228,14 @@ String HouzDevices::node_name() {
 }
 
 
-bool HouzDevices::radioReady()
+bool Houz::radioReady()
 {
 	radio->printDetails();
 	return radio_status;
 };
 
 
-bool HouzDevices::radioRead()
+bool Houz::radioRead()
 {
 	//if radio is not enabled, discard anything
 	if (!radio_status) { return false; };
@@ -260,7 +251,7 @@ bool HouzDevices::radioRead()
 	}
 
 	//decode payload
-	deviceData device = decode(_radioPayLoad, _radioNode);
+	deviceData device = codec->decode(_radioPayLoad, _radioNode);
 
 	//prepare for next packet
 	radio->startListening();
@@ -288,16 +279,16 @@ bool HouzDevices::radioRead()
 };
 
 
-bool HouzDevices::radioSend(deviceData device) {
+bool Houz::radioSend(deviceData device) {
 	return radioSend(device, device.node);
 };
-bool HouzDevices::radioSend(deviceData device, byte nodeId) {
+bool Houz::radioSend(deviceData device, byte nodeId) {
 	return radioSend(device.cmd, device.id, device.payload, nodeId);
 };
-bool HouzDevices::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload) {
+bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload) {
 	return radioSend(deviceCmd, deviceId, devicePayload, server_node);
 };
-bool HouzDevices::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) {
+bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) {
 	if (!radio_status) return false;
 	if (!server_online) 
 		if (!radioSendQueue.isEmpty()) return false;
@@ -305,7 +296,7 @@ bool HouzDevices::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte n
 
 	//enqueue send
 	radioPacket packet;
-	packet.message = encode(deviceCmd, deviceId, devicePayload);
+	packet.message = codec->encode(deviceCmd, deviceId, devicePayload);
 	packet.node = nodeId;
 	packet.retries = 0;
 	radioSendQueue.enqueue(packet);
@@ -318,13 +309,13 @@ bool HouzDevices::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte n
 	return true;
 };
 
-void HouzDevices::printRadioPacket(radioPacket packet) {
+void Houz::printRadioPacket(radioPacket packet) {
 	console->print(F("N"));
 	console->print(packet.node, HEX);
 	console->print(packet.message, HEX);
 };
 
-void HouzDevices::radioWrite() {
+void Houz::radioWrite() {
 	if (!radio_status) { return; };
 	if (radio_next_packet > millis()) { return; };
 
@@ -376,7 +367,7 @@ void HouzDevices::radioWrite() {
 	radio->startListening();
 	radio_next_packet = millis() + 100;
 }
-void HouzDevices::radioWriteResult(byte result, radioPacket packet) {
+void Houz::radioWriteResult(byte result, radioPacket packet) {
 	
 	//server 
 	if (node_id == server_node) {
@@ -406,58 +397,15 @@ void HouzDevices::radioWriteResult(byte result, radioPacket packet) {
 
 };
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Device Stuff 
-deviceData HouzDevices::decode(u32 rawData, u32 nodeId) {
-	deviceData decoded;
-	decoded.raw = rawData;
-	decoded.hasData = false;
-
-	if (((rawData >> 28) == 0xD)) {
-		decoded.node = nodeId;
-
-		//parse values
-		decoded.hasData = true;
-		decoded.cmd = ((rawData >> 24) & 0x0F);
-		decoded.id = ((rawData >> 16) & 0x0FF);
-		decoded.payload = ((rawData) & 0x0000FFFF);
-	}
-	return decoded;
-};
-
-deviceData HouzDevices::decode(String str) { //from serial
-	deviceData dev;
-	if (str.length() != 10 || str[0] != 'N' || str[2] != 'D')
-		return dev;
-
-	dev.node = StrToHex(str.substring(1, 2));
-	dev.cmd = StrToHex(str.substring(3, 4));
-	dev.id = StrToHex(str.substring(4, 6));
-	dev.payload = StrToHex(str.substring(6, 10));
-	dev.raw = StrToHex(str.substring(3, 10));
-	dev.hasData = (dev.id != 0);
-	return dev;
-}
-
-unsigned long HouzDevices::encode(u8 _cmd, u8 deviceId, u32 devicePayload)
-{
-	unsigned long retVal = 0xD;
-	retVal = (retVal << 4) + _cmd;
-	retVal = (retVal << 8) + deviceId;
-	retVal = (retVal << 16) + devicePayload;
-	return retVal;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Serial stuff 
 
-bool HouzDevices::serialRead(){
+bool Houz::serialRead(){
   while (console->available() > 0) {
     int inChar = console->read();
 	//console->print((char)inChar);
 	if (inChar == '\n' || (char)inChar == '\\') {
-		handleCommand(decode(serialBuffer));
+		handleCommand(codec->decode(serialBuffer));
 	}else{
 		serialBuffer += (char)inChar;
 	}
@@ -465,7 +413,7 @@ bool HouzDevices::serialRead(){
   return false;
 }
 
-void HouzDevices::handleCommand(deviceData device){
+void Houz::handleCommand(deviceData device){
 	if (!device.hasData) device.message = serialBuffer;
 	serialBuffer = "";
 
@@ -490,7 +438,7 @@ void HouzDevices::handleCommand(deviceData device){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IO stuff | shifted outputs
 
-void HouzDevices::setIo(u32 io, bool status) {
+void Houz::setIo(u32 io, bool status) {
 	//set bit
 	if(status)
 		bitSet(ioStatus, io);
@@ -500,17 +448,17 @@ void HouzDevices::setIo(u32 io, bool status) {
 	//push
 	ioRender();
 };
-void HouzDevices::setIo(word ioRawValue) {
+void Houz::setIo(word ioRawValue) {
 	ioStatus = ioRawValue;
 	ioRender();
 };
 
 
-bool HouzDevices::getIo(u32 io) {
+bool Houz::getIo(u32 io) {
 	return bitRead(ioStatus, io);
 };
 
-void HouzDevices::ioRender() {
+void Houz::ioRender() {
 	digitalWrite(latchPin, LOW);
 	shiftOut(dataPin, clockPin, MSBFIRST, (ioStatus >> 8));
 	shiftOut(dataPin, clockPin, MSBFIRST, ioStatus);
@@ -520,6 +468,6 @@ void HouzDevices::ioRender() {
 	console->println(ioStatus, BIN);
 }
 
-word HouzDevices::getIoStatus() {
+word Houz::getIoStatus() {
 	return ioStatus;
 }
