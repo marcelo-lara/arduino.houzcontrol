@@ -36,6 +36,7 @@ public:
 
 	//commands
 	bool hasData();
+	deviceData getData();
 	void pushData(deviceData device);
 
 	//radio
@@ -56,13 +57,6 @@ public:
 	bool getIo(u32 io);
 
 	//helpers
-	// unsigned long StrToHex(char str[]);
-	// unsigned long StrToHex(String str);
-	//unsigned long encode(u8 _cmd, u8 deviceId, u32 devicePayload);
-	// deviceData decode(String str);
-	// deviceData decode(u32 rawData, u32 rfNodeStation);
-	deviceData getData();
-	
 	void statusLedBlink();
 
 private:
