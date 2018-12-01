@@ -1,4 +1,4 @@
-﻿/*
+/*
  Name:		living.ino
  Created:	14-Feb-18 20:49:12
  Author:	DarkAngel
