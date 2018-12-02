@@ -22,8 +22,11 @@
 #define acBghFan03		0x880834F
 
 
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Surrey AC
+#define acSurreyPowerOn 0xB24D1FE0
+#define acSurreyPowerOff 0xB24D7B84
+#define acSurreyCool    0xB24DBF40
 
 // bedroom TV | LG
 #define tvPower 0x20DF10EF
