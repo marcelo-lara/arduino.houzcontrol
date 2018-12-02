@@ -78,17 +78,6 @@ void loop() {
 	animRender();
 }
 
-
-void cmdToStr(deviceData device) {
-	String ret = "";
-	switch (device.cmd)
-	{
-	case CMD_SET: ret = ret + ""; break;
-	default:
-		break;
-	}
-};
-
 void handleCommand(deviceData device) {
 	switch (device.id){
 
@@ -194,11 +183,7 @@ void handleIrCode(unsigned long irCode) {
 	//turn light on
 	case irDvrCenter:
 		Serial.println("irDvrCenter");
-		deviceData device;
-		device.id=living_mainLight;
-		device.cmd=CMD_SET;
-		device.payload=2;
-		houz.pushData(device);
+		houz.pushData(CMD_SET, living_mainLight, 2);
 		break;
 
 	default:

@@ -98,9 +98,15 @@ bool Houz::hasData() {
 	return !commandsQueue.isEmpty();
 };
 
+void Houz::pushData(u8 deviceCmd, u8 deviceId, u32 devicePayload){
+	deviceData dev;
+	dev.cmd = deviceCmd;
+	dev.id = deviceId;
+	dev.payload = devicePayload;
+	pushData(dev);
+}
+
 void Houz::pushData(deviceData device) {
-	console->print("[commandsQueue] + ");
-	console->codec->toStr(device));
 	commandsQueue.enqueue(device);
 };
 
