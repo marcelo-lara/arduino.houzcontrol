@@ -83,13 +83,11 @@ void handleCommand(deviceData device) {
 
 	case living_node		: //ping node
 		Serial.println("[living_node] ping");
-		houz.radioSend(CMD_VALUE, device.id, !device.payload);
 		break;
 
 	case living_switchLed	: // switch led intensity
 		Serial.println("[living_switchLed] ");
 		if (device.cmd == CMD_SET) houz.setIo(device.payload);
-		houz.radioSend(CMD_VALUE, device.id, houz.getIoStatus());
 		break;
 
 //////////////////
@@ -168,16 +166,13 @@ void handleCommand(deviceData device) {
 void infraredRead() {
 	decode_results results;
 	if (irrecv.decode(&results)) {  // Grab an IR code
-		if (results.value != 0xFFFFFFFF) {
-			Serial.print("\nIR.receive> ");
-			handleIrCode(results.value);
-			houz.statusLedBlink();
-		}
+		if (results.value != 0xFFFFFFFF) handleIrCode(results.value);
 		irrecv.resume(); // Prepare for the next value
 	}
 }
-void handleIrCode(unsigned long irCode) {
 
+void handleIrCode(unsigned long irCode) {
+	Serial.print("\nIR.receive\t");
 	switch (irCode)	{
 
 	//turn light on
@@ -205,10 +200,10 @@ void switchRead() {
 	if (buttonState == HIGH) return;
 	
 	switchReadSt = millis() + 500;
-	Serial.print("[switchRead] inSwitch pressed ");
+	Serial.println("switchRead\thit");
 
 	//handle status
-	mainLightToggle();
+	houz.pushData(CMD_SET, living_mainLight, 2);
 
 	//notify
 	houz.radioSend(CMD_EVENT, living_switch, 1);
@@ -216,7 +211,6 @@ void switchRead() {
 
 void mainLightToggle(){
 	renderLights(living_mainLight, (mainLight == B11) ? B00 : B11);
-	houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
 	if (dungeonMode) dungeonChanged = true;
 }
 
