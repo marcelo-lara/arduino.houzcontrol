@@ -16,6 +16,7 @@
 #include <HouzSonyRemote.h>
 #include <HouzIrCodes.h>
 #include <IRremote.h>
+#include <IRremoteInt.h>
 #include <HouzInfrared.h>
 #include <Houz.h>
 
@@ -30,7 +31,7 @@
 RF24 radio(rfCE, rfCS);
 
 //ir setup
-#define irRecvPin	4	//IRM-8601S
+#define irRecvPin	2	//IRM-8601S
 #define irSndPin	3	//IR Led (can't be changed)
 IRrecv irrecv(irRecvPin);
 IRsend irsend;
@@ -63,12 +64,9 @@ void setup() {
 	pinMode(inSwitch, INPUT_PULLUP);
 	houz.setIo(0xFFFF);
 
-	//announce
-	//dicroLight	= B11111111;
-	//mainLight	= B11;
-	//spotlLight	= B1111;
-	//fxLight	= B11;
-	//renderLights();
+	//ir setup
+	irrecv.enableIRIn();	
+
 	Serial.println("");
 }
 
@@ -76,7 +74,38 @@ void loop() {
 	if (houz.hasData()) 
 		handleCommand(houz.getData()); 
 	switchRead();
+	infraredRead();
 	animRender();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IR Remote Control
+void infraredRead() {
+	decode_results results;
+	if (irrecv.decode(&results)) {  // Grab an IR code
+		if (results.value != 0xFFFFFFFF) {
+			Serial.print("\nIR.receive> ");
+			handleIrCode(results.value);
+			houz.statusLedBlink();
+		}
+		irrecv.resume(); // Prepare for the next value
+	}
+}
+void handleIrCode(unsigned long irCode) {
+
+	switch (irCode)	{
+
+	//turn light on
+	case irDvrCenter:
+		houz.pushData()
+		Serial.print("irDvrCenter");
+		break;
+
+	default:
+		Serial.print("unknown: 0x");
+		Serial.println(irCode, HEX);
+		break;
+	}
 }
 
 void cmdToStr(deviceData device) {
@@ -342,14 +371,4 @@ void animRender() {
 
 
 
-};
-
-
-
-void drawBin(u32 inValue) {
-	int i;
-	for (i = 15; i > -1; i--) {
-		Serial.print(bitRead(inValue, i));
-	}
-	Serial.println("");
 };
