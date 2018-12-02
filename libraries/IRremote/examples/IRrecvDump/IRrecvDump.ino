@@ -10,7 +10,7 @@
 
 #include <IRremote.h>
 
-int RECV_PIN = 11;
+int RECV_PIN = 2;
 
 IRrecv irrecv(RECV_PIN);
 
@@ -18,7 +18,7 @@ decode_results results;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   irrecv.enableIRIn(); // Start the receiver
 }
 
@@ -29,31 +29,27 @@ void setup()
 //  decode_results *results = (decode_results *)v
 void dump(decode_results *results) {
   int count = results->rawlen;
-  if (results->decode_type == UNKNOWN) {
-    Serial.print("Unknown encoding: ");
-  } 
-  else if (results->decode_type == NEC) {
-    Serial.print("Decoded NEC: ");
-  } 
-  else if (results->decode_type == SONY) {
-    Serial.print("Decoded SONY: ");
-  } 
-  else if (results->decode_type == RC5) {
-    Serial.print("Decoded RC5: ");
-  } 
-  else if (results->decode_type == RC6) {
-    Serial.print("Decoded RC6: ");
+
+  if(results->value==0xFFFFFFFF){
+    Serial.println("\n.. noise ");
+    return;
   }
-  else if (results->decode_type == PANASONIC) {	
-    Serial.print("Decoded PANASONIC - Address: ");
-    Serial.print(results->panasonicAddress,HEX);
-    Serial.print(" Value: ");
-  }
-  else if (results->decode_type == LG) {
-     Serial.print("Decoded LG: ");
-  }
-  else if (results->decode_type == JVC) {
-     Serial.print("Decoded JVC: ");
+
+  Serial.print("\n-- decoded ");
+  switch(results->decode_type){
+    case NEC:       Serial.println("NEC"); break;
+    case SONY:      Serial.println("SONY"); break;
+    case RC5:       Serial.println("RC5"); break;
+    case RC6:       Serial.println("RC6"); break;
+    case DISH:      Serial.println("DISH"); break;
+    case SHARP:     Serial.println("SHARP"); break;
+    case PANASONIC: Serial.println("PANASONIC"); break;
+    case JVC:       Serial.println("JVC"); break;
+    case SANYO:     Serial.println("SANYO"); break;
+    case MITSUBISHI:Serial.println("MITSUBISHI"); break;
+    case SAMSUNG:   Serial.println("SAMSUNG"); break;
+    case LG:        Serial.println("LG"); break;
+    case UNKNOWN:   Serial.println("UNKNOWN"); break;
   }
   Serial.print(results->value, HEX);
   Serial.print(" (");
@@ -73,8 +69,34 @@ void dump(decode_results *results) {
     Serial.print(" ");
   }
   Serial.println("");
+
+  dumpCode(results);
 }
 
+void  dumpCode (decode_results *results)
+{
+  int codeType = results->decode_type;
+  int codeLen = results->bits;
+  unsigned long codeValue = results->value;
+  String data_status;
+  data_status += F("{\"T\":\"");
+  data_status += codeType;
+  data_status += F("\",\"D\":[\"");
+  data_status += codeValue;
+  data_status += F("\",\"");
+  for (int i = 1; i < results->rawlen ; i++)
+  {
+    data_status += results->rawbuf[i] * USECPERTICK;
+    if (i != results->rawlen - 1)data_status += ",";
+  }
+  data_status += F(",\",\"");
+  data_status += results->rawlen;
+
+  data_status += F("\"]}");
+  Serial.println("-- raw encoded --");
+  Serial.println(data_status);
+  Serial.println("-----------------");
+}
 
 void loop() {
   if (irrecv.decode(&results)) {
