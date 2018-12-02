@@ -42,7 +42,6 @@ deviceData HouzDevicesCodec::decode(String str) { //from serial
 	return dev;
 }
 
-
 //////////////////////////////////////////////////////
 // StrToHex
 unsigned long HouzDevicesCodec::StrToHex(char str[])

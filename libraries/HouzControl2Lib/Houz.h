@@ -2,13 +2,17 @@
 // Devices Config
 
 #include <HouzDevicesModel.h>
-#include <HouzDevicesNodes.h>
+#include <HouzDevices.h>
 #include <HouzDevicesCodec.h>
 
 #include <HouzSonyRemote.h>
 #include <HouzIrCodes.h>
 #include <QueueArray.h>
+
 #include <RF24.h>
+
+#include <IRremote.h>
+#include <IRremoteInt.h>
 
 // commands
 #define CMD_QUERY			0xA
@@ -38,6 +42,7 @@ public:
 	bool hasData();
 	deviceData getData();
 	void pushData(deviceData device);
+	void pushData(u8 deviceCmd, u8 deviceId, u32 devicePayload);
 
 	//TODO: move out
 	//radio 

@@ -78,38 +78,8 @@ void loop() {
 	animRender();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// IR Remote Control
-void infraredRead() {
-	decode_results results;
-	if (irrecv.decode(&results)) {  // Grab an IR code
-		if (results.value != 0xFFFFFFFF) {
-			Serial.print("\nIR.receive> ");
-			handleIrCode(results.value);
-			houz.statusLedBlink();
-		}
-		irrecv.resume(); // Prepare for the next value
-	}
-}
-void handleIrCode(unsigned long irCode) {
-
-	switch (irCode)	{
-
-	//turn light on
-	case irDvrCenter:
-		houz.pushData()
-		Serial.print("irDvrCenter");
-		break;
-
-	default:
-		Serial.print("unknown: 0x");
-		Serial.println(irCode, HEX);
-		break;
-	}
-}
 
 void cmdToStr(deviceData device) {
-
 	String ret = "";
 	switch (device.cmd)
 	{
@@ -117,8 +87,6 @@ void cmdToStr(deviceData device) {
 	default:
 		break;
 	}
-
-
 };
 
 void handleCommand(deviceData device) {
@@ -150,8 +118,11 @@ void handleCommand(deviceData device) {
 	case living_mainLight: // 2x center light
 		Serial.println("[main_light] ");
 		if (device.cmd == CMD_SET) {
-			renderLights(living_mainLight, device.payload);
-			if (dungeonMode) dungeonChanged = true;
+			if(device.payload==2){
+				mainLightToggle();
+			}else{
+				renderLights(living_mainLight, device.payload);
+			}
 		};
 		houz.radioSend(CMD_VALUE, device.id, mainLight);
 		break;
@@ -203,6 +174,40 @@ void handleCommand(deviceData device) {
 	}				  
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IR Remote Control
+void infraredRead() {
+	decode_results results;
+	if (irrecv.decode(&results)) {  // Grab an IR code
+		if (results.value != 0xFFFFFFFF) {
+			Serial.print("\nIR.receive> ");
+			handleIrCode(results.value);
+			houz.statusLedBlink();
+		}
+		irrecv.resume(); // Prepare for the next value
+	}
+}
+void handleIrCode(unsigned long irCode) {
+
+	switch (irCode)	{
+
+	//turn light on
+	case irDvrCenter:
+		Serial.println("irDvrCenter");
+		deviceData device;
+		device.id=living_mainLight;
+		device.cmd=CMD_SET;
+		device.payload=2;
+		houz.pushData(device);
+		break;
+
+	default:
+		Serial.print("unknown: 0x");
+		Serial.println(irCode, HEX);
+		break;
+	}
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lighting control
@@ -218,13 +223,18 @@ void switchRead() {
 	Serial.print("[switchRead] inSwitch pressed ");
 
 	//handle status
-	renderLights(living_mainLight, (mainLight == B11) ? B00 : B11);
+	mainLightToggle();
 
 	//notify
-	houz.statusLedBlink();
 	houz.radioSend(CMD_EVENT, living_switch, 1);
-	houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
 }
+
+void mainLightToggle(){
+	renderLights(living_mainLight, (mainLight == B11) ? B00 : B11);
+	houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
+	if (dungeonMode) dungeonChanged = true;
+}
+
 
 void renderLights(int module, int outSetting) {
 	switch (module)	{
@@ -368,7 +378,4 @@ void animRender() {
 	anim.on = false;
 	anim.step = 0;
 	anim.id = 0;
-
-
-
 };

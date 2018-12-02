@@ -32,6 +32,8 @@ TODO:
 #define rf_led_high		0x99
 #define rf_led_max		0xFF
 
+HouzDevicesCodec* codec;
+
 bool server_online = false;
 Houz::Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial) {
 	init(NodeId, _radio, _rfStatusLed, serial);
@@ -97,7 +99,8 @@ bool Houz::hasData() {
 };
 
 void Houz::pushData(deviceData device) {
-	//console->println("[commandsQueue] + " + deviceToString(device));
+	console->print("[commandsQueue] + ");
+	console->codec->toStr(device));
 	commandsQueue.enqueue(device);
 };
 
@@ -126,7 +129,7 @@ void Houz::statusLedBlink() {
 void Houz::statusLedRender() {
 	if (!statusLedAnim.on) return;
 	if (statusLedAnim.nextStep > millis()) return;
-	statusLedAnim.nextStep = millis() + 100;
+	statusLedAnim.nextStep = millis() + 50;
 
 	//step
 	switch (statusLedAnim.step)	{
@@ -452,7 +455,6 @@ void Houz::setIo(word ioRawValue) {
 	ioStatus = ioRawValue;
 	ioRender();
 };
-
 
 bool Houz::getIo(u32 io) {
 	return bitRead(ioStatus, io);

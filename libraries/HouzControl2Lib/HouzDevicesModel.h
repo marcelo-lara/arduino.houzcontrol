@@ -1,5 +1,4 @@
-#ifndef HouzDevicesModel_h
-#define HouzDevicesModel_h
+#pragma once
 
 struct deviceData {
 public:
@@ -35,5 +34,3 @@ public:
 
 	unsigned long nextStep;
 };
-
-#endif

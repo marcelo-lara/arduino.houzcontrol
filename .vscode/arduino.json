@@ -1,5 +1,6 @@
 {
     "board": "arduino:avr:uno",
     "port": "COM3",
+    "output": "../build",
     "sketch": "houz_living\\houz_living.ino"
 }
