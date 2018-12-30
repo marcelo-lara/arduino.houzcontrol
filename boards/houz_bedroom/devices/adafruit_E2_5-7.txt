@@ -1,0 +1,8 @@
+(DEVICE FILE: )PACKAGE adafruit_E2_5-7
+CLASS IC
+PINCOUNT 2
+
+PINORDER adafruit_E2_5-7 + -
+PINUSE adafruit_E2_5-7 IN IN
+FUNCTION G1 adafruit_E2_5-7 + -
+END
