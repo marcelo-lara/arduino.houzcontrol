@@ -21,9 +21,9 @@
 #define serialRx	2	//fixed
 
 //radio setup
-#define statusLed	A1	//wall led indicator
-#define rfCE       9	//RF pin 3 (CE)
-#define rfCS		  10	//RF pin 4 (CS)
+#define statusLed	5	//wall led indicator
+#define rfCE        9	//RF pin 3 (CE)
+#define rfCS	   10	//RF pin 4 (CS)
 RF24 radio(rfCE, rfCS);
 
 //ir setup
@@ -127,6 +127,7 @@ void switchRead() {
 }
 
 void setMainLight(int state){ //todo: check this..
+  Serial.print("mainLight\t");
   Serial.println(state);
 	int actState = digitalRead(mainLight);
 
