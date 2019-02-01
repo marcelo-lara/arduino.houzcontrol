@@ -386,7 +386,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 	switch (result)
 	{
 	case action_rfSentFail: 
-		console->print(F("drop"));
+		console->print(F("drop\t"));
 		break;
 	case action_rfSentRetry: 
 		console->print(packet.retries);
