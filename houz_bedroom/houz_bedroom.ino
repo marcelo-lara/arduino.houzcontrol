@@ -13,7 +13,7 @@
 #include <HouzIrCodes.h>
 #include <IRremote.h>
 #include <IRremoteInt.h>
-#include <HouzInfrared.h>
+//#include <HouzInfrared.h>
 #include <Houz.h>
 
 //serial setup
@@ -38,18 +38,21 @@ IRsend irsend;
 #define inSwitch	  A2 	//wall switch
 #define mainLight	  A0 	//ceiling light relay
 
-#define ioClockPin	8	  //74HC595[11] SH_CP
-#define ioLatchPin	7	  //74HC595[12] ST_CP
+#define ioClockPin	  8	  //74HC595[11] SH_CP
+#define ioLatchPin	  7	  //74HC595[12] ST_CP
 #define ioDataPin	  6	  //74HC595[14] DS
 
-Houz houz(bedroom_node, radio, statusLed, Serial, ioDataPin, ioLatchPin, ioClockPin);
+Houz houz(suite_node, radio, statusLed, Serial, ioDataPin, ioLatchPin, ioClockPin);
 
 void setup() {
 	Serial.begin(115200);
 	houz.setup();
 
-	//io setup
+  //main light
 	pinMode(inSwitch, INPUT_PULLUP);
+	pinMode(mainLight, OUTPUT);
+
+	//io setup
 	houz.setIo(0xFFFF);
 
 	//ir setup
@@ -65,8 +68,15 @@ void loop() {
 void handleCommand(deviceData device) {
 	switch (device.id){
 
-	case bedroom_light	: // main light
-		Serial.println("[bedroom_light] ");
+ // main light
+ 	case suite_light:
+		Serial.println("[suite_light] ");
+		if (device.cmd == CMD_SET) setMainLight(device.payload);
+		break;
+
+ // ceiling fan
+ 	case suite_fan:
+		Serial.println("[suite_fan] ");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
 		break;
 
@@ -123,16 +133,29 @@ void switchRead() {
 	Serial.println("switchRead\thit");
 
 	//handle status
-	houz.pushData(CMD_SET, living_mainLight, 2);
+	setMainLight(2);
+  houz.pushData(CMD_SET, living_mainLight, 2);
 }
 
 void setMainLight(int state){ //todo: check this..
-  Serial.print("mainLight\t");
-  Serial.println(state);
-	int actState = digitalRead(mainLight);
-
-  digitalWrite(mainLight, (state==1)?1:0);
-  Serial.print("mainLight\t");
-	Serial.println(actState);
+  if(state>1) state=digitalRead(mainLight)==1?0:1;
+  digitalWrite(mainLight,state==1?0:1);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Fan control
+void setFanSpeed(int fanSpeed){
+	Serial.print("fan\t");
+	Serial.println(fanSpeed);
+}
+void getFanSpeed(int fanSpeed){
+	
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AC control
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Enviroment sensor | BME280
 

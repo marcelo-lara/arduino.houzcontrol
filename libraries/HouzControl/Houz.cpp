@@ -6,14 +6,11 @@ TODO:
 	- keep server-nodes status
 	- scan devices
 */
-
 #include "Arduino.h"
 #include "Houz.h"
 #include <QueueArray.h>
-
 #include <RF24.h>
 #include <printf.h>
-
 #include <avr/wdt.h> //watchdog
 
 //radio setup
@@ -22,8 +19,8 @@ TODO:
 #define rf_server_rx	0xB0
 #define rf_office_tx	0xA1
 #define rf_office_rx	0xB1
-#define rf_bedroom_tx	0xA2
-#define rf_bedroom_rx	0xB2
+#define rf_suite_tx	0xA2
+#define rf_suite_rx	0xB2
 #define rf_living_tx	0xA3
 #define rf_living_rx	0xB3
 
@@ -202,7 +199,7 @@ void Houz::setPipes() {
 	case server_node: 
 		radio->openWritingPipe(rf_server_tx);
 		radio->openReadingPipe(1, rf_office_tx);
-		radio->openReadingPipe(2, rf_bedroom_tx);
+		radio->openReadingPipe(2, rf_suite_tx);
 		radio->openReadingPipe(3, rf_living_tx);
 		break;
 
@@ -211,9 +208,9 @@ void Houz::setPipes() {
 		radio->openReadingPipe(1, rf_office_rx);
 		break;
 
-	case bedroom_node: 
-		radio->openWritingPipe(rf_bedroom_tx);
-		radio->openReadingPipe(1, rf_bedroom_rx);
+	case suite_node: 
+		radio->openWritingPipe(rf_suite_tx);
+		radio->openReadingPipe(1, rf_suite_rx);
 		break;
 
 	case living_node: 
@@ -230,7 +227,7 @@ String Houz::node_name() {
 	switch (node_id){
 	case server_node:	return F("server_node"); 
 	case office_node:	return F("office_node");
-	case bedroom_node:	return F("bedroom_node");
+	case suite_node:	return F("suite_node");
 	case living_node:	return F("living_node");
 	}
 	return (F(""));
@@ -345,7 +342,7 @@ void Houz::radioWrite() {
 	case server_node:
 		switch (packet.node) {
 		case office_node: writeAddress = rf_office_rx; break;
-		case bedroom_node: writeAddress = rf_bedroom_rx; break;
+		case suite_node: writeAddress = rf_suite_rx; break;
 		case living_node: writeAddress = rf_living_rx; break;
 		}
 		radio->openWritingPipe(writeAddress);

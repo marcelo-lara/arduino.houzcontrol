@@ -18,14 +18,16 @@
 #define external_pressure	0x1C //pressure [hPa /FIX THIS ((x-900) * 100?)] | N1DA1C0000
 #define external_weather	0x1F //all devices | N1DA1F0099
 
-// Bedroom
-#define bedroom_node		0x2	 //N2DC02F0F0
-#define bedroom_AC			0x23 //Air Conditioner on/off
-#define bedroom_AC_temp		0x24 //Air Conditioner temperature
-#define bedroom_light		0x25 //Ceiling light N2DC250001
-#define bedroom_switchLed	0x26 //Wall switch led
-#define bedroom_switch		0x27 //Wall switch
-#define bedroom_ir			0x28 //ir
+// Suite
+#define suite_node		    0x2	 //N2DC02F0F0
+#define suite_enviroment	0x23 //bme280 sensors | N2DA230000
+#define suite_AC			0x23 //Air Conditioner on/off | N2DC230001
+#define suite_AC_temp		0x24 //Air Conditioner temperature | N2DC240001
+#define suite_light		    0x25 //N2DC250001
+#define suite_switchLed	    0x26 //Wall switch led
+#define suite_switch		0x27 //Wall switch
+#define suite_ir			0x28 //ir
+#define suite_fan			0x29 //N2DC290001
 
 // Living
 #define living_node			0x3	 //N3DC04F0F0\n
