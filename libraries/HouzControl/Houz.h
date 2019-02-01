@@ -5,7 +5,6 @@
 #include <HouzDevices.h>
 #include <HouzDevicesCodec.h>
 
-#include <HouzSonyRemote.h>
 #include <HouzIrCodes.h>
 #include <QueueArray.h>
 

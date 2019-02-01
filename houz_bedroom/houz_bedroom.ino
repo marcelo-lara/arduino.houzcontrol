@@ -9,16 +9,13 @@
  - Enviroment BME280
 */
 
-#include <HouzSonyRemote.h>
-#include <HouzIrCodes.h>
 #include <IRremote.h>
 #include <IRremoteInt.h>
-//#include <HouzInfrared.h>
 #include <Houz.h>
 
 //serial setup
-#define serialTx	1	//fixed
-#define serialRx	2	//fixed
+#define serialTx	0	//fixed
+#define serialRx	1	//fixed
 
 //radio setup
 #define statusLed	5	//wall led indicator
@@ -36,7 +33,7 @@ IRsend irsend;
 
 //lighting controller setup
 #define inSwitch	  A2 	//wall switch
-#define mainLight	  A0 	//ceiling light relay
+#define mainLight	  14 	//ceiling light relay
 
 #define ioClockPin	  8	  //74HC595[11] SH_CP
 #define ioLatchPin	  7	  //74HC595[12] ST_CP
@@ -68,7 +65,7 @@ void loop() {
 void handleCommand(deviceData device) {
 	switch (device.id){
 
- // main light
+ // main light | N2DC250001
  	case suite_light:
 		Serial.println("[suite_light] ");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
@@ -102,13 +99,13 @@ void infraredRead() {
 }
 
 void handleIrCode(unsigned long irCode) {
-	Serial.print("\nIR.receive\t");
+	Serial.print("IR.receive\t");
 	switch (irCode)	{
 
 	//turn light on
 	case irDvrCenter:
 		Serial.println("irDvrCenter");
-		houz.pushData(CMD_SET, living_mainLight, 2);
+		//houz.pushData(CMD_SET, living_mainLight, 2);
 		break;
 
 	default:
@@ -134,12 +131,14 @@ void switchRead() {
 
 	//handle status
 	setMainLight(2);
-  houz.pushData(CMD_SET, living_mainLight, 2);
+  //houz.pushData(CMD_SET, living_mainLight, 2);
 }
 
 void setMainLight(int state){ //todo: check this..
-  if(state>1) state=digitalRead(mainLight)==1?0:1;
-  digitalWrite(mainLight,state==1?0:1);
+  if(state>1) state=digitalRead(mainLight)==0?0:1;
+  digitalWrite(mainLight, !state);
+	Serial.print("light\t");
+	Serial.println(digitalRead(mainLight));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
