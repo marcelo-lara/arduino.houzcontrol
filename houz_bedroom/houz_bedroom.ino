@@ -1,3 +1,5 @@
+#include <Wire.h>
+
 /*
  Name:		houz_bedroom.ino
  Created:	29-JAN-18
@@ -28,7 +30,12 @@ RF24 radio(rfCE, rfCS);
 IRrecv irrecv(irRecvPin);
 IRsend irsend;
 
-//bme280 setup
+//bosch bme280 weather module (3.3v)
+#define bme280_SDA			A4
+#define bme280_SCL			A5
+#include <BlueDot_BME280.h>
+BlueDot_BME280 bme280 = BlueDot_BME280();
+bool	bme280_online = false; 
 
 //lighting controller setup
 #define inSwitch	  A2 	//wall switch
@@ -49,10 +56,17 @@ void setup() {
 	pinMode(mainLight, OUTPUT);
 
   //io setup
-	houz.setIo(0xFFFF);
+	houz.setIo(0);
 
   //ir setup
 	irrecv.enableIRIn();
+
+  // bme280
+  	weather_setup();
+    weather_dump();
+
+  //
+	
 }
 
 void loop() {
@@ -82,6 +96,11 @@ void handleCommand(deviceData device) {
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
 		break;
 
+ // weather
+  case suite_enviroment:
+    weather_dump();
+    break;
+
 	case 0:
 		Serial.print("msg: ");
 		Serial.println(device.message);
@@ -107,16 +126,16 @@ void handleIrCode(unsigned long irCode) {
 	switch (irCode)	{
 
 	//turn light on
-	case sonyIrDvrSelect:
-		Serial.println("DvrSelect");
-		setMainLight(2);
-		break;
+	case sonyIrDvrSelect:	Serial.println("DvrSelect"); setMainLight(2); break;
 
-	case sonyIrDvr1: Serial.println("dvr1"); break;
-	case sonyIrDvr2: Serial.println("dvr2"); break;
-	case sonyIrDvr3: Serial.println("dvr3"); break;
-	case sonyIrDvr4: Serial.println("dvr4"); break;
-	case sonyIrDvr0: Serial.println("dvr0"); break;
+	//fan control
+	case sonyIrDvr1: Serial.println("dvr1"); setFanSpeed(1); break;
+	case sonyIrDvr2: Serial.println("dvr2"); setFanSpeed(2); break;
+	case sonyIrDvr3: Serial.println("dvr3"); setFanSpeed(3); break;
+	case sonyIrDvr4: Serial.println("dvr4"); setFanSpeed(4); break;
+	case sonyIrDvr0: Serial.println("dvr0"); setFanSpeed(0); break;
+
+  case sonyIrDvrEnter: weather_dump(); break;
 
 	default:
 		Serial.print("irUnknown: 0x");
@@ -156,6 +175,15 @@ void setMainLight(int state){ //todo: check this..
 void setFanSpeed(int fanSpeed){
 	Serial.print("fan\t");
 	Serial.println(fanSpeed);
+	switch (fanSpeed)
+	{
+		case 0: houz.setIo(B0); break;
+		case 1: houz.setIo(B1000); break;
+		case 2: houz.setIo(B0100); break;
+		case 3: houz.setIo(B0010); break;
+		case 4: houz.setIo(B0001); break;
+		default: break;
+	}	
 }
 void getFanSpeed(int fanSpeed){
 	
@@ -175,3 +203,31 @@ void setAC(bool state, int temp){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enviroment sensor | BME280
 
+void weather_setup() {
+	bme280.parameter.communication =		0;		//Choose communication protocol
+	bme280.parameter.I2CAddress =			0x76;	//Choose I2C Address
+	bme280.parameter.sensorMode =			0b11;	//Choose sensor mode
+	bme280.parameter.IIRfilter =			0b100;	//Setup for IIR Filter
+	bme280.parameter.humidOversampling =	0b101;	//Setup Humidity Oversampling
+	bme280.parameter.tempOversampling =		0b101;	//Setup Temperature Ovesampling
+	bme280.parameter.pressOversampling =	0b101;	//Setup Pressure Oversampling 
+	bme280.parameter.pressureSeaLevel =		1013.25;//default value of 1013.25 hPa
+	bme280.parameter.tempOutsideCelsius =	15;		//default value of 15�C
+	bme280_online = (bme280.init() ==		0x60);
+
+	Serial.print("bme280: ");
+	Serial.println(bme280_online ? "online" : "offline");
+};
+
+void weather_dump(){
+  if(!bme280_online) return;
+	Serial.println("-- enviroment -----------");
+    Serial.print(F("Temperature Sensor 1 [°C]:\t\t")); 
+    Serial.println(bme280.readTempC());
+    Serial.print(F("Humidity Sensor 1 [%]:\t\t\t")); 
+    Serial.println(bme280.readHumidity());
+    Serial.print(F("Pressure Sensor 1 [hPa]:\t\t")); 
+    Serial.println(bme280.readPressure());
+    Serial.print(F("Altitude Sensor 1 [m]:\t\t\t")); 
+    Serial.println(bme280.readAltitudeMeter());
+}

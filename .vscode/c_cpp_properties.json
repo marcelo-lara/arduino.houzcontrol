@@ -3,11 +3,12 @@
         {
             "name": "Win32",
             "includePath": [
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\Wire\\src",
                 "C:\\Program Files (x86)\\Arduino\\tools\\**",
                 "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\**",
+                "C:\\Dropbox\\11-Electronics\\arduino.houzcontrol\\libraries\\HouzControl\\**",
                 "${workspaceFolder}/**",
                 "libraries/**",
-                "C:\\Dropbox\\11-Electronics\\arduino.houzcontrol\\libraries\\HouzControl\\**",
                 "C:/Program Files (x86)/Arduino/hardware/tools/avr/avr/include"
             ],
             "defines": [
