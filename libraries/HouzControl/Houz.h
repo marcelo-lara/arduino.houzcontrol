@@ -10,8 +10,8 @@
 
 #include <RF24.h>
 
-#include <IRremote.h>
-#include <IRremoteInt.h>
+// #include <IRremote.h>
+// #include <IRremoteInt.h>
 
 // commands
 #define CMD_QUERY			0xA

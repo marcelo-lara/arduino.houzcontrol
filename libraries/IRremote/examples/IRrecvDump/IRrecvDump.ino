@@ -10,7 +10,12 @@
 
 #include <IRremote.h>
 
-int RECV_PIN = 2;
+/* 
+*  Default is Arduino pin D11. 
+*  You can change this to another available Arduino Pin.
+*  Your IR receiver should be connected to the pin defined here
+*/
+int RECV_PIN = 11;
 
 IRrecv irrecv(RECV_PIN);
 
@@ -18,38 +23,47 @@ decode_results results;
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   irrecv.enableIRIn(); // Start the receiver
 }
 
-// Dumps out the decode_results structure.
-// Call this after IRrecv::decode()
-// void * to work around compiler issue
-//void dump(void *v) {
-//  decode_results *results = (decode_results *)v
+
 void dump(decode_results *results) {
+  // Dumps out the decode_results structure.
+  // Call this after IRrecv::decode()
   int count = results->rawlen;
-
-  if(results->value==0xFFFFFFFF){
-    Serial.println("\n.. noise ");
-    return;
+  if (results->decode_type == UNKNOWN) {
+    Serial.print("Unknown encoding: ");
   }
+  else if (results->decode_type == NEC) {
+    Serial.print("Decoded NEC: ");
 
-  Serial.print("\n-- decoded ");
-  switch(results->decode_type){
-    case NEC:       Serial.println("NEC"); break;
-    case SONY:      Serial.println("SONY"); break;
-    case RC5:       Serial.println("RC5"); break;
-    case RC6:       Serial.println("RC6"); break;
-    case DISH:      Serial.println("DISH"); break;
-    case SHARP:     Serial.println("SHARP"); break;
-    case PANASONIC: Serial.println("PANASONIC"); break;
-    case JVC:       Serial.println("JVC"); break;
-    case SANYO:     Serial.println("SANYO"); break;
-    case MITSUBISHI:Serial.println("MITSUBISHI"); break;
-    case SAMSUNG:   Serial.println("SAMSUNG"); break;
-    case LG:        Serial.println("LG"); break;
-    case UNKNOWN:   Serial.println("UNKNOWN"); break;
+  }
+  else if (results->decode_type == SONY) {
+    Serial.print("Decoded SONY: ");
+  }
+  else if (results->decode_type == RC5) {
+    Serial.print("Decoded RC5: ");
+  }
+  else if (results->decode_type == RC6) {
+    Serial.print("Decoded RC6: ");
+  }
+  else if (results->decode_type == PANASONIC) {
+    Serial.print("Decoded PANASONIC - Address: ");
+    Serial.print(results->address, HEX);
+    Serial.print(" Value: ");
+  }
+  else if (results->decode_type == LG) {
+    Serial.print("Decoded LG: ");
+  }
+  else if (results->decode_type == JVC) {
+    Serial.print("Decoded JVC: ");
+  }
+  else if (results->decode_type == AIWA_RC_T501) {
+    Serial.print("Decoded AIWA RC T501: ");
+  }
+  else if (results->decode_type == WHYNTER) {
+    Serial.print("Decoded Whynter: ");
   }
   Serial.print(results->value, HEX);
   Serial.print(" (");
@@ -59,43 +73,17 @@ void dump(decode_results *results) {
   Serial.print(count, DEC);
   Serial.print("): ");
 
-  for (int i = 0; i < count; i++) {
-    if ((i % 2) == 1) {
+  for (int i = 1; i < count; i++) {
+    if (i & 1) {
       Serial.print(results->rawbuf[i]*USECPERTICK, DEC);
-    } 
+    }
     else {
-      Serial.print(-(int)results->rawbuf[i]*USECPERTICK, DEC);
+      Serial.write('-');
+      Serial.print((unsigned long) results->rawbuf[i]*USECPERTICK, DEC);
     }
     Serial.print(" ");
   }
-  Serial.println("");
-
-  dumpCode(results);
-}
-
-void  dumpCode (decode_results *results)
-{
-  int codeType = results->decode_type;
-  int codeLen = results->bits;
-  unsigned long codeValue = results->value;
-  String data_status;
-  data_status += F("{\"T\":\"");
-  data_status += codeType;
-  data_status += F("\",\"D\":[\"");
-  data_status += codeValue;
-  data_status += F("\",\"");
-  for (int i = 1; i < results->rawlen ; i++)
-  {
-    data_status += results->rawbuf[i] * USECPERTICK;
-    if (i != results->rawlen - 1)data_status += ",";
-  }
-  data_status += F(",\",\"");
-  data_status += results->rawlen;
-
-  data_status += F("\"]}");
-  Serial.println("-- raw encoded --");
-  Serial.println(data_status);
-  Serial.println("-----------------");
+  Serial.println();
 }
 
 void loop() {

@@ -3,5 +3,5 @@
     "port": "COM3",
     "output": "../build",
     "sketch": "houz_bedroom\\houz_bedroom.ino",
-    "programmer": "AVRISP mkII"
+    "programmer": "AVR ISP"
 }

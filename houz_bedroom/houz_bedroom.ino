@@ -10,7 +10,6 @@
 */
 
 #include <IRremote.h>
-#include <IRremoteInt.h>
 #include <Houz.h>
 
 //serial setup
@@ -49,11 +48,11 @@ void setup() {
 	pinMode(inSwitch, INPUT_PULLUP);
 	pinMode(mainLight, OUTPUT);
 
-	//io setup
+  //io setup
 	houz.setIo(0xFFFF);
 
-	//ir setup
-	irrecv.enableIRIn();	
+  //ir setup
+	irrecv.enableIRIn();
 }
 
 void loop() {
@@ -71,7 +70,13 @@ void handleCommand(deviceData device) {
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
 		break;
 
- // ceiling fan
+ // AC control | N2DC230001
+ 	case suite_AC:
+		Serial.println("[suite_AC] ");
+		if (device.cmd == CMD_SET) setAC(device.payload, 24);
+		break;
+
+ // ceiling fan | 
  	case suite_fan:
 		Serial.println("[suite_fan] ");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
@@ -91,11 +96,10 @@ void handleCommand(deviceData device) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IR Remote Control
 void infraredRead() {
-	decode_results results;
-	if (irrecv.decode(&results)) {  // Grab an IR code
-		if (results.value != 0xFFFFFFFF) handleIrCode(results.value);
-		irrecv.resume(); // Prepare for the next value
-	}
+  decode_results  results;
+  if (!irrecv.decode(&results)) return;
+  if (results.value!=0xFFFFFFFF) handleIrCode(results.value);
+  irrecv.resume();
 }
 
 void handleIrCode(unsigned long irCode) {
@@ -153,7 +157,14 @@ void getFanSpeed(int fanSpeed){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // AC control
-
+void setAC(bool state, int temp){
+	Serial.print("AC\t");
+	Serial.print(state==1?"on":"off");
+	Serial.print("\t");
+	Serial.println(temp);
+	irsend.sendLG(acBghPowerOff, 28);
+	//irsend.send(0x1035C9DA,32);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enviroment sensor | BME280
