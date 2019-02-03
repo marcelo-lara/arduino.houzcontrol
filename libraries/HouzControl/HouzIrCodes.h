@@ -53,3 +53,28 @@
 #define irDvrLeft 0x46B59	//dvr: joystick left
 #define irDvrDown 0x6B59	//dvr: joystick down
 #define irDvrCenter 0x7AB59	//dvr: joystick enter
+
+//@38kHz
+#define sonyIrDvrSelect 0xB091507A  //on DvrSelect
+
+#define sonyIrDvr1      0x1630F6A   
+#define sonyIrDvr2      0xD970B6F3
+#define sonyIrDvr3      0x524473A4
+#define sonyIrDvr4      0x53654BD7
+#define sonyIrDvr5      0xBA77A250
+#define sonyIrDvr6      0xE9841C61
+#define sonyIrDvr7      0x26C50A60
+#define sonyIrDvr8      0x7EE4B51B
+#define sonyIrDvr9      0x6831ABC4
+#define sonyIrDvr0      0x6C69F095
+#define sonyIrDvrEnter  0xE65E8579
+
+#define sonyIrDvrA      0xEF605AD7  //dvr: key A
+#define sonyIrDvrB      0xC316402E  //dvr: key B
+#define sonyIrDvrUp     0xA62391F1  //dvr: joystick up
+#define sonyIrDvrRight  0x2E9336F9  //dvr: joystick right
+#define sonyIrDvrLeft   0xFD21F39E  //dvr: joystick left
+#define sonyIrDvrDown   0x8498D20   //dvr: joystick down
+#define sonyIrDvrCenter 0xFF862D8A  //dvr: joystick enter
+
+

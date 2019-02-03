@@ -107,10 +107,16 @@ void handleIrCode(unsigned long irCode) {
 	switch (irCode)	{
 
 	//turn light on
-	case irDvrCenter:
-		Serial.println("irDvrCenter");
-		//houz.pushData(CMD_SET, living_mainLight, 2);
+	case sonyIrDvrSelect:
+		Serial.println("DvrSelect");
+		setMainLight(2);
 		break;
+
+	case sonyIrDvr1: Serial.println("dvr1"); break;
+	case sonyIrDvr2: Serial.println("dvr2"); break;
+	case sonyIrDvr3: Serial.println("dvr3"); break;
+	case sonyIrDvr4: Serial.println("dvr4"); break;
+	case sonyIrDvr0: Serial.println("dvr0"); break;
 
 	default:
 		Serial.print("irUnknown: 0x");
