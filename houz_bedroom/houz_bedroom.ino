@@ -135,7 +135,7 @@ void handleIrCode(unsigned long irCode) {
 	case sonyIrDvr4: Serial.println("dvr4"); setFanSpeed(4); break;
 	case sonyIrDvr0: Serial.println("dvr0"); setFanSpeed(0); break;
 
-  case sonyIrDvrEnter: weather_dump(); break;
+  case sonyIrDvrEnter: Serial.println("dvrEnter"); weather_dump(); break;
 
 	default:
 		Serial.print("irUnknown: 0x");
@@ -219,15 +219,24 @@ void weather_setup() {
 	Serial.println(bme280_online ? "online" : "offline");
 };
 
+Weather weather;
+bool whather_read(){
+  if(!bme280_online) return false;
+  weather.temp=bme280.readTempC();
+  weather.hum=bme280.readHumidity();
+  weather.pressure=bme280.readPressure();
+  weather.alt=bme280.readAltitudeMeter();
+  return true;
+}
+
 void weather_dump(){
-  if(!bme280_online) return;
-	Serial.println("-- enviroment -----------");
-    Serial.print(F("Temperature Sensor 1 [°C]:\t\t")); 
-    Serial.println(bme280.readTempC());
-    Serial.print(F("Humidity Sensor 1 [%]:\t\t\t")); 
-    Serial.println(bme280.readHumidity());
-    Serial.print(F("Pressure Sensor 1 [hPa]:\t\t")); 
-    Serial.println(bme280.readPressure());
-    Serial.print(F("Altitude Sensor 1 [m]:\t\t\t")); 
-    Serial.println(bme280.readAltitudeMeter());
+  if(!whather_read()) return;
+  Serial.print(F("temp: ")); 
+  Serial.print(weather.temp);
+  Serial.print(F("°C\thum: ")); 
+  Serial.print(weather.hum);
+  Serial.print(F("%\tpressure: ")); 
+  Serial.print(weather.pressure);
+  Serial.print(F("hPa\tAltitude[m]: ")); 
+  Serial.println(weather.alt);
 }

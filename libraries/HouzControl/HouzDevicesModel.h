@@ -34,3 +34,11 @@ public:
 
 	unsigned long nextStep;
 };
+
+struct Weather{
+public:
+	float temp;
+	float hum;
+	float pressure;
+	float alt;
+};
