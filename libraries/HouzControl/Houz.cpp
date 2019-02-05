@@ -354,7 +354,7 @@ void Houz::radioWrite() {
 	if (!result) {
 		packet.retries++;
 		packet.nextRetry = millis() + 1000;
-		if (packet.retries <= 10) {
+		if (packet.retries < 10) {
 			radioWriteResult(action_rfSentRetry, packet);
 			radioSendQueue.enqueue(packet);
 		}
