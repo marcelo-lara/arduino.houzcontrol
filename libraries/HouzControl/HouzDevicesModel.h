@@ -32,5 +32,7 @@ public:
 	byte step;
 	int stepInterval;
 
+	byte *steps;
+
 	unsigned long nextStep;
 };

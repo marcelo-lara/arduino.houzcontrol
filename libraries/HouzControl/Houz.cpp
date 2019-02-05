@@ -19,8 +19,8 @@ TODO:
 #define rf_server_rx	0xB0
 #define rf_office_tx	0xA1
 #define rf_office_rx	0xB1
-#define rf_suite_tx	0xA2
-#define rf_suite_rx	0xB2
+#define rf_suite_tx		0xA2
+#define rf_suite_rx		0xB2
 #define rf_living_tx	0xA3
 #define rf_living_rx	0xB3
 
@@ -32,11 +32,11 @@ TODO:
 HouzDevicesCodec* codec;
 
 bool server_online = false;
-Houz::Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial) {
-	init(NodeId, _radio, _rfStatusLed, serial);
+Houz::Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
+	init(NodeId, _radio, _statusLed, serial);
 };
 
-Houz::Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin) {
+Houz::Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin) {
 	//74HC595 shift register setup
 	ioReady = true;
 	dataPin = _dataPin;
@@ -53,16 +53,16 @@ Houz::Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial, u8 _dat
 	shiftOut(dataPin, clockPin, MSBFIRST, 0);
 	digitalWrite(latchPin, 1);
 
-	init(NodeId, _radio, _rfStatusLed, serial);
+	init(NodeId, _radio, _statusLed, serial);
 };
 
-void Houz::init(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial) {
+void Houz::init(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
 	console = &serial;
 	radio = &_radio;
 	node_id = NodeId;
-	rfStatusLed = _rfStatusLed;
-	pinMode(rfStatusLed, OUTPUT);
-	analogWrite(rfStatusLed, rf_led_low);
+	statusLed = _statusLed;
+	pinMode(statusLed, OUTPUT);
+	analogWrite(statusLed, rf_led_low);
 }
 
 void Houz::setup() {
@@ -124,30 +124,29 @@ void Houz::printToHost(byte result, byte node, u32 message){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Helpers 
 void Houz::statusLedBlink() {
-	statusLedAnim.on = true;
 	statusLedAnim.step = 0;
-	statusLedAnim.stepCount = 4;
+	statusLedAnim.stepInterval = 75;
+	statusLedAnim.steps = new byte[rf_led_idle, rf_led_high, rf_led_max, rf_led_high, rf_led_idle];
+	statusLedAnim.stepCount = 5;
+	statusLedAnim.on = true;
 };
-
+void Houz::statusLedVoid() {
+	statusLedAnim.step = 0;
+	statusLedAnim.stepInterval = 75;
+	statusLedAnim.steps = new byte[rf_led_low, 0, 0, rf_led_low, rf_led_idle];
+	statusLedAnim.stepCount = 5;
+	statusLedAnim.on = true;
+};
 void Houz::statusLedRender() {
-	if (!statusLedAnim.on) return;
-	if (statusLedAnim.nextStep > millis()) return;
-	statusLedAnim.nextStep = millis() + 50;
+	if (!statusLedAnim.on || statusLedAnim.nextStep > millis()) return;
+	statusLedAnim.nextStep = millis() + statusLedAnim.stepInterval;
 
 	//step
-	switch (statusLedAnim.step)	{
-	case 0: analogWrite(rfStatusLed, rf_led_low); break;
-	case 1: analogWrite(rfStatusLed, rf_led_idle); break;
-	case 2: analogWrite(rfStatusLed, rf_led_high); break;
-	case 3: analogWrite(rfStatusLed, rf_led_max); break;
-	case 4: analogWrite(rfStatusLed, server_node? rf_led_idle: rf_led_low); break;
-	}
+	analogWrite(statusLed, statusLedAnim.steps[statusLedAnim.step]);
 
 	//end of animation
-	if (statusLedAnim.step >= statusLedAnim.stepCount) {
-		statusLedAnim.on = false;
-		return;
-	}
+	statusLedAnim.on = (statusLedAnim.step < statusLedAnim.stepCount);
+	if(!statusLedAnim.on) analogWrite(statusLed, radio_status?rf_led_idle:rf_led_low);
 	statusLedAnim.step++;
 };
 
@@ -156,8 +155,8 @@ void Houz::statusLedRender() {
 void Houz::radioSetup()
 {
 	radio_status = 0;
-	pinMode(rfStatusLed, OUTPUT);
-	analogWrite(rfStatusLed, rf_led_low);
+	pinMode(statusLed, OUTPUT);
+	analogWrite(statusLed, rf_led_low);
 
 	//setup rf24 module
 	printf_begin();
@@ -190,7 +189,7 @@ void Houz::radioSetup()
 	}
 	if (radio_status) 
 		radio->startListening();
-	analogWrite(rfStatusLed, rf_led_idle);
+	statusLedBlink();
 };
 
 void Houz::setPipes() {
@@ -386,6 +385,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 	switch (result)
 	{
 	case action_rfSentFail: 
+		statusLedVoid();
 		console->print(F("drop\t"));
 		break;
 	case action_rfSentRetry: 
@@ -394,12 +394,12 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 
 		break;
 	case action_rfSentOk:
+		statusLedBlink();
 		console->print(F("ok\t"));
 		break;
 	}
 	printRadioPacket(packet);
 	console->println();
-	analogWrite(rfStatusLed, server_online ? rf_led_idle : rf_led_low);
 
 };
 

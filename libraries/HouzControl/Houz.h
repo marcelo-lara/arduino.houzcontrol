@@ -34,8 +34,8 @@
 
 class Houz{
 public:
-	Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial);
-	Houz(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream &serial, u8 dataPin, u8 latchPin, u8 clockPin);
+	Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial);
+	Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial, u8 dataPin, u8 latchPin, u8 clockPin);
 	void setup();
 
 	//commands
@@ -64,10 +64,11 @@ public:
 
 	//helpers
 	void statusLedBlink();
+	void statusLedVoid();
 
 private:
 	HouzDevicesCodec* codec;
-	void init(byte NodeId, RF24 &_radio, byte _rfStatusLed, Stream & serial);
+	void init(byte NodeId, RF24 &_radio, byte _statusLed, Stream & serial);
 	Anim statusLedAnim;
 	void statusLedRender();
 
@@ -84,7 +85,7 @@ private:
 	String node_name();
 	bool radio_status;
 	bool server_online;
-	byte rfStatusLed;
+	byte statusLed;
 	unsigned long radio_next_packet;
 
 	bool radioRead();
