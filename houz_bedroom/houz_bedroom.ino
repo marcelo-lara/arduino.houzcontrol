@@ -19,20 +19,20 @@
 #define serialRx	1	//fixed
 
 //radio setup
-#define statusLed	5	//wall led indicator
-#define rfCE        9	//RF pin 3 (CE)
-#define rfCS	   10	//RF pin 4 (CS)
+#define statusLed	   5	//wall led indicator
+#define rfCE         9	//RF pin 3 (CE)
+#define rfCS	      10	//RF pin 4 (CS)
 RF24 radio(rfCE, rfCS);
 
 //ir setup
-#define irRecvPin	2	//IRM-8601S
-#define irSndPin	3	//IR Led (can't be changed)
+#define irRecvPin	   2	//IRM-8601S
+#define irSndPin	   3	//IR Led (can't be changed)
 IRrecv irrecv(irRecvPin);
 IRsend irsend;
 
 //bosch bme280 weather module (3.3v)
-#define bme280_SDA			A4
-#define bme280_SCL			A5
+#define bme280_SDA	A4
+#define bme280_SCL  A5
 HouzWeather houzWeather(bme280_SDA, bme280_SCL);
 
 //lighting controller setup
@@ -74,34 +74,38 @@ void handleCommand(deviceData device) {
  	case suite_light:
 		Serial.println("[suite_light] ");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
+    houz.radioSend(CMD_EVENT, suite_light, device.payload);
 		break;
 
  // AC control | N2DC230001
  	case suite_AC:
 		Serial.println("[suite_AC] ");
 		if (device.cmd == CMD_SET) setAC(device.payload, 24);
+    houz.radioSend(CMD_EVENT, suite_AC, device.payload);
 		break;
 
  // ceiling fan | 
  	case suite_fan:
 		Serial.println("[suite_fan] ");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
+    houz.radioSend(CMD_EVENT, suite_fan, device.payload);
 		break;
 
  // weather | N2DA200000
   case suite_enviroment:
-    weather_dump(houzWeather.getWeather());
+    Weather cond = houzWeather.getWeather();
+    houz.radioSend(CMD_VALUE, suite_enviroment, cond.online);
+    if(cond.online){
+      houz.radioSend(CMD_VALUE, suite_temp, cond.temp);
+      houz.radioSend(CMD_VALUE, suite_humidity, cond.hum);
+      houz.radioSend(CMD_VALUE, suite_pressure, cond.pressure);
+    }
     break;
-
-	case 0:
-		Serial.print("msg: ");
-		Serial.println(device.message);
-		break;
 
 	default:		  
 		Serial.println("[handleCommand] unknown " + device.raw);
 		break;
-	}				  
+	}	  
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,43 +122,37 @@ void handleIrCode(unsigned long irCode) {
 	switch (irCode)	{
 
 	//turn light on
-	case sonyIrDvrSelect:	Serial.println("DvrSelect"); setMainLight(2); break;
+	case sonyIrDvrSelect:	Serial.println("DvrSelect"); houz.pushData(CMD_SET, suite_light, 2); break;
 
 	//fan control
-	case sonyIrDvr1: Serial.println("dvr1"); setFanSpeed(1); break;
-	case sonyIrDvr2: Serial.println("dvr2"); setFanSpeed(2); break;
-	case sonyIrDvr3: Serial.println("dvr3"); setFanSpeed(3); break;
-	case sonyIrDvr4: Serial.println("dvr4"); setFanSpeed(4); break;
-	case sonyIrDvr0: Serial.println("dvr0"); setFanSpeed(0); break;
+	case sonyIrDvr1: Serial.println("dvr1"); houz.pushData(CMD_SET, suite_fan, 1); break;
+	case sonyIrDvr2: Serial.println("dvr2"); houz.pushData(CMD_SET, suite_fan, 2); break;
+	case sonyIrDvr3: Serial.println("dvr3"); houz.pushData(CMD_SET, suite_fan, 3); break;
+	case sonyIrDvr4: Serial.println("dvr4"); houz.pushData(CMD_SET, suite_fan, 4); break;
+	case sonyIrDvr0: Serial.println("dvr0"); houz.pushData(CMD_SET, suite_fan, 0); break;
+  case sonyIrDvrEnter: Serial.println("dvrEnter"); houz.pushData(CMD_GET, suite_enviroment, 0); break;
 
-  case sonyIrDvrEnter: Serial.println("dvrEnter"); 
-
-  break;
-
-	default:
+	//unknown code
+  default:
 		Serial.print("irUnknown: 0x");
 		Serial.println(irCode, HEX);
 		break;
 	}
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lighting control
 unsigned long switchReadSt = 0;
 void switchRead() {
 	if (switchReadSt > millis()) return; //debounce
-
 	int buttonState;
 	buttonState = digitalRead(inSwitch);
 	if (buttonState == HIGH) return;
-	
 	switchReadSt = millis() + 500;
 	Serial.println("switchRead\thit");
 
 	//handle status
-	setMainLight(2);
-  //houz.pushData(CMD_SET, living_mainLight, 2);
+	houz.pushData(CMD_SET, suite_light, 2);
 }
 
 void setMainLight(int state){ //todo: check this..
@@ -180,7 +178,7 @@ void setFanSpeed(int fanSpeed){
 	}	
 }
 void getFanSpeed(int fanSpeed){
-	
+	houz.getIoStatus();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,12 +188,16 @@ void setAC(bool state, int temp){
 	Serial.print(state==1?"on":"off");
 	Serial.print("\t");
 	Serial.println(temp);
-	irsend.sendLG(acBghPowerOff, 28);
+	irsend.sendLG(state?acBghPowerOn:acBghPowerOff, 28);
 	//irsend.send(0x1035C9DA,32);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enviroment sensor | BME280
+void getWeather(){
+    weather_dump(houzWeather.getWeather());
+}
+
 void weather_dump(Weather cond){
   Serial.print(F("bme280: ")); 
   Serial.print(cond.online?"online":"offline"); 
