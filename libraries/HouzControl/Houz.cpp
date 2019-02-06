@@ -395,7 +395,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 		break;
 	case action_rfSentOk:
 		statusLedBlink();
-		console->print(F("ok\t"));
+		console->print(F("ok\t\t"));
 		break;
 	}
 	printRadioPacket(packet);
