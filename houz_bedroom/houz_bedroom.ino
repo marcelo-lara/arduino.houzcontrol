@@ -130,6 +130,8 @@ void handleIrCode(unsigned long irCode) {
 	case sonyIrDvr3: Serial.println(F("dvr3")); houz.pushData(CMD_SET, suite_fan, 3); break;
 	case sonyIrDvr4: Serial.println(F("dvr4")); houz.pushData(CMD_SET, suite_fan, 4); break;
 	case sonyIrDvr0: Serial.println(F("dvr0")); houz.pushData(CMD_SET, suite_fan, 0); break;
+
+	//push enviroment
   case sonyIrDvrEnter: Serial.println(F("dvrEnter")); houz.pushData(CMD_QUERY, suite_enviroment, 0); break;
 
 	//AC
