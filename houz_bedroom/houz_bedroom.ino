@@ -70,24 +70,24 @@ void loop() {
 void handleCommand(deviceData device) {
 	switch (device.id){
 
- // main light | N2DC250001
+ // main light | N2DC230001
  	case suite_light:
 		Serial.println("[suite_light] ");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
-    houz.radioSend(CMD_EVENT, suite_light, device.payload);
+    houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
 		break;
 
- // AC control | N2DC230001
+ // AC control | N2DC210001
  	case suite_AC:
 		Serial.println("[suite_AC] ");
-		if (device.cmd == CMD_SET) setAC(device.payload, 24);
-    houz.radioSend(CMD_EVENT, suite_AC, device.payload);
+		if (device.cmd == CMD_SET) setAC(device.payload);
+    houz.radioSend(CMD_EVENT, suite_AC, getAC());
 		break;
 
- // ceiling fan | 
+ // ceiling fan | N2DC240001
  	case suite_fan:
 		Serial.println("[suite_fan] ");
-		if (device.cmd == CMD_SET) setMainLight(device.payload);
+		if (device.cmd == CMD_SET) setFanSpeed(device.payload);
     houz.radioSend(CMD_EVENT, suite_fan, device.payload);
 		break;
 
@@ -118,23 +118,27 @@ void infraredRead() {
 }
 
 void handleIrCode(unsigned long irCode) {
-	Serial.print("IR.receive\t");
+	Serial.print(F("IR.receive\t"));
 	switch (irCode)	{
 
 	//turn light on
-	case sonyIrDvrSelect:	Serial.println("DvrSelect"); houz.pushData(CMD_SET, suite_light, 2); break;
+	case sonyIrDvrSelect:	Serial.println(F("DvrSelect")); houz.pushData(CMD_SET, suite_light, 2); break;
 
 	//fan control
-	case sonyIrDvr1: Serial.println("dvr1"); houz.pushData(CMD_SET, suite_fan, 1); break;
-	case sonyIrDvr2: Serial.println("dvr2"); houz.pushData(CMD_SET, suite_fan, 2); break;
-	case sonyIrDvr3: Serial.println("dvr3"); houz.pushData(CMD_SET, suite_fan, 3); break;
-	case sonyIrDvr4: Serial.println("dvr4"); houz.pushData(CMD_SET, suite_fan, 4); break;
-	case sonyIrDvr0: Serial.println("dvr0"); houz.pushData(CMD_SET, suite_fan, 0); break;
-  case sonyIrDvrEnter: Serial.println("dvrEnter"); houz.pushData(CMD_QUERY, suite_enviroment, 0); break;
+	case sonyIrDvr1: Serial.println(F("dvr1")); houz.pushData(CMD_SET, suite_fan, 1); break;
+	case sonyIrDvr2: Serial.println(F("dvr2")); houz.pushData(CMD_SET, suite_fan, 2); break;
+	case sonyIrDvr3: Serial.println(F("dvr3")); houz.pushData(CMD_SET, suite_fan, 3); break;
+	case sonyIrDvr4: Serial.println(F("dvr4")); houz.pushData(CMD_SET, suite_fan, 4); break;
+	case sonyIrDvr0: Serial.println(F("dvr0")); houz.pushData(CMD_SET, suite_fan, 0); break;
+  case sonyIrDvrEnter: Serial.println(F("dvrEnter")); houz.pushData(CMD_QUERY, suite_enviroment, 0); break;
+
+	//AC
+	case sonyIrDvrA: Serial.println(F("dvrA")); houz.pushData(CMD_SET, suite_AC, 24); break;
+	case sonyIrDvrB: Serial.println(F("dvrB")); houz.pushData(CMD_SET, suite_AC, 0); break;
 
 	//unknown code
   default:
-		Serial.print("irUnknown: 0x");
+		Serial.print(F("irUnknown: 0x"));
 		Serial.println(irCode, HEX);
 		break;
 	}
@@ -156,10 +160,14 @@ void switchRead() {
 }
 
 void setMainLight(int state){ //todo: check this..
-  if(state>1) state=digitalRead(mainLight)==0?0:1;
-  digitalWrite(mainLight, !state);
-	Serial.print("light\t");
-	Serial.println(digitalRead(mainLight));
+  if(state>1) state=!digitalRead(mainLight)==0?1:0;
+  digitalWrite(mainLight, state==1?0:1);
+	Serial.print("\tstatus\t");
+	Serial.println(getMainLight());
+}
+
+bool getMainLight(){
+	return !digitalRead(mainLight);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,19 +185,28 @@ void setFanSpeed(int fanSpeed){
 		default: break;
 	}	
 }
-void getFanSpeed(int fanSpeed){
-	houz.getIoStatus();
+word getFanSpeed(int fanSpeed){
+	Serial.print("fan\t");
+	Serial.println(houz.getIoStatus());
+
+	//houz.getIoStatus();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // AC control
-void setAC(bool state, int temp){
+int acStatus;
+void setAC(int state){
 	Serial.print("AC\t");
-	Serial.print(state==1?"on":"off");
+	Serial.print(state>0?"on":"off");
 	Serial.print("\t");
-	Serial.println(temp);
-	irsend.sendLG(state?acBghPowerOn:acBghPowerOff, 28);
+	Serial.println(state);
+
+	irsend.sendLG(state>0?acBghPowerOn:acBghPowerOff, 28);
 	//irsend.send(0x1035C9DA,32);
+}
+
+int getAC(){
+	return acStatus;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
