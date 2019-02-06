@@ -370,7 +370,7 @@ void Houz::radioWrite() {
 	};
 
 	radio->startListening();
-	radio_next_packet = millis() + 100;
+	radio_next_packet = millis() + 200;
 }
 void Houz::radioWriteResult(byte result, radioPacket packet) {
 	
