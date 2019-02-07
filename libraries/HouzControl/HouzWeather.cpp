@@ -2,7 +2,6 @@
 #include <Wire.h>
 #include <BlueDot_BME280.h>
 #include <HouzWeather.h>
-
 Weather _current;
 
 HouzWeather::HouzWeather(int _sda, int _scl){

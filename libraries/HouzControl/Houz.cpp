@@ -293,6 +293,20 @@ bool Houz::radioSend(deviceData device, byte nodeId) {
 bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload) {
 	return radioSend(deviceCmd, deviceId, devicePayload, server_node);
 };
+bool Houz::radioSend(Weather weather){
+	if(node_id==suite_node){
+		radioSend(CMD_VALUE, suite_enviroment, weather.online);
+		if(weather.online){
+			radioSend(CMD_VALUE, suite_temp, weather.temp*100);
+			radioSend(CMD_VALUE, suite_humidity, weather.hum*100);
+			radioSend(CMD_VALUE, suite_pressure, codec->pressureEncode(weather.pressure));
+  	  console->print(F("%\tpressure: ")); 
+			console->print(codec->pressureEncode(weather.pressure));	
+		}
+	}
+	return true;
+};
+
 bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) {
 	if (!radio_status) return false;
 	if (!server_online) 
@@ -395,8 +409,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 		break;
 	case action_rfSentRetry: 
 		console->print(packet.retries);
-		console->print(F("retry\t"));
-
+		console->print(F(" retry\t"));
 		break;
 	case action_rfSentOk:
 		statusLedBlink();

@@ -96,13 +96,14 @@ void handleCommand(deviceData device) {
   case suite_enviroment:
 		Serial.println("--enviroment");
     Weather cond = houzWeather.getWeather();
-		weather_dump(cond);
-    houz.radioSend(CMD_VALUE, suite_enviroment, cond.online);
-    if(cond.online){
-      houz.radioSend(CMD_VALUE, suite_temp, cond.temp);
-      houz.radioSend(CMD_VALUE, suite_humidity, cond.hum);
-      houz.radioSend(CMD_VALUE, suite_pressure, cond.pressure);
-    }
+		houz.radioSend(cond);
+		// weather_dump(cond);
+    // houz.radioSend(CMD_VALUE, suite_enviroment, cond.online);
+    // if(cond.online){
+    //   houz.radioSend(CMD_VALUE, suite_temp, cond.temp);
+    //   houz.radioSend(CMD_VALUE, suite_humidity, cond.hum);
+    //   houz.radioSend(CMD_VALUE, suite_pressure, cond.pressure);
+    // }
     break;
 
 	default:		  

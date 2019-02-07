@@ -36,3 +36,12 @@ public:
 
 	unsigned long nextStep;
 };
+
+typedef struct Weather{
+public:
+  bool online;
+	float temp;
+	float hum;
+	float pressure;
+	float alt;
+};

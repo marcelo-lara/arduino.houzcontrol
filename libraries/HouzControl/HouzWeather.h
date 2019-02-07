@@ -1,14 +1,6 @@
 #pragma once
 #include <BlueDot_BME280.h>
-
-typedef struct Weather{
-public:
-  bool online;
-	float temp;
-	float hum;
-	float pressure;
-	float alt;
-};
+#include <HouzDevicesModel.h>
 
 class HouzWeather{
   public:

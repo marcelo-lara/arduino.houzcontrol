@@ -51,6 +51,7 @@ public:
 	bool radioSend(deviceData device, byte nodeId);
 	bool radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload);
 	bool radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId);
+	bool radioSend(Weather weather);
 
 	//serial
 	bool serialRead();
