@@ -5,6 +5,8 @@
 
 unsigned long HouzDevicesCodec::encode(u8 _cmd, u8 deviceId, u32 devicePayload)
 {
+  devicePayload=pressureEncode(deviceId, devicePayload);
+
 	unsigned long retVal = 0xD;
 	retVal = (retVal << 4) + _cmd;
 	retVal = (retVal << 8) + deviceId;
@@ -25,6 +27,7 @@ deviceData HouzDevicesCodec::decode(u32 rawData, u32 nodeId) {
 		decoded.id = ((rawData >> 16) & 0x0FF);
 		decoded.payload = ((rawData) & 0x0000FFFF);
 	}
+  decoded.payload = pressureDecode(decoded.id, decoded.payload);
 	return decoded;
 };
 
@@ -41,6 +44,19 @@ deviceData HouzDevicesCodec::decode(String str) { //from serial
 	dev.hasData = (dev.id != 0);
 	return dev;
 }
+
+//////////////////////////////////////////////////////
+// Pressure patch
+u32 HouzDevicesCodec::pressureEncode(u8 deviceId, u32 devicePayload){
+	if (deviceId!=0x27) return devicePayload;
+  return (devicePayload-850)*100; //800hPa offset
+}
+
+u32 HouzDevicesCodec::pressureDecode(u8 deviceId, u32 devicePayload){
+	if (deviceId!=0x27) return devicePayload;
+  return (devicePayload/100)+850; //800hPa offset
+}
+
 
 //////////////////////////////////////////////////////
 // StrToHex

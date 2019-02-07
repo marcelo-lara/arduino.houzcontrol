@@ -52,6 +52,7 @@ void setup() {
   //main light
 	pinMode(inSwitch, INPUT_PULLUP);
 	pinMode(mainLight, OUTPUT);
+	digitalWrite(mainLight,1); //off on restart
 
   //io setup
 	houz.setIo(0);
@@ -72,28 +73,30 @@ void handleCommand(deviceData device) {
 
  // main light | N2DC230001
  	case suite_light:
-		Serial.println("[suite_light] ");
+		Serial.println("--light");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
     houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
 		break;
 
- // AC control | N2DC210001
+ // AC control | N2DC210018 (24)
  	case suite_AC:
-		Serial.println("[suite_AC] ");
+		Serial.println("--AC");
 		if (device.cmd == CMD_SET) setAC(device.payload);
     houz.radioSend(CMD_EVENT, suite_AC, getAC());
 		break;
 
  // ceiling fan | N2DC240001
  	case suite_fan:
-		Serial.println("[suite_fan] ");
+		Serial.println("--fan");
 		if (device.cmd == CMD_SET) setFanSpeed(device.payload);
     houz.radioSend(CMD_EVENT, suite_fan, device.payload);
 		break;
 
  // weather | N2DA200000
   case suite_enviroment:
+		Serial.println("--enviroment");
     Weather cond = houzWeather.getWeather();
+		weather_dump(cond);
     houz.radioSend(CMD_VALUE, suite_enviroment, cond.online);
     if(cond.online){
       houz.radioSend(CMD_VALUE, suite_temp, cond.temp);
@@ -103,7 +106,7 @@ void handleCommand(deviceData device) {
     break;
 
 	default:		  
-		Serial.println("[handleCommand] unknown " + device.raw);
+		Serial.println("--unknown " + device.raw);
 		break;
 	}	  
 };
@@ -199,12 +202,11 @@ word getFanSpeed(int fanSpeed){
 int acStatus = 0;
 void setAC(int state){
 	Serial.print("AC\t");
-	Serial.print(state>0?"on":"off");
+	Serial.print(state>0?"on":"off"); 
 	Serial.print("\t");
 	Serial.println(state);
-
 	irsend.sendLG(state>0?acBghPowerOn:acBghPowerOff, 28);
-	//irsend.send(0x1035C9DA,32);
+	acStatus=state;
 }
 
 int getAC(){

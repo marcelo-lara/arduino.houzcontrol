@@ -299,6 +299,11 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) 
 		if (!radioSendQueue.isEmpty()) return false;
 	if (radioSendQueue.count() > 10) return false;
 
+	//pressure patch
+	if (deviceId==0x1C){
+		devicePayload=(devicePayload*100)-80000; //800hPa offset
+	}
+
 	//enqueue send
 	radioPacket packet;
 	packet.message = codec->encode(deviceCmd, deviceId, devicePayload);
@@ -308,7 +313,7 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) 
 
 	if (node_id == server_node) return true;
 
-	console->print(F("radioSend\tpush\t"));
+	console->print(F("\tradioSend\tpush\t"));
 	printRadioPacket(packet);
 	console->println();
 	return true;
@@ -381,7 +386,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 	}
 
 	//hosts
-	console->print(F("radioWrite\t"));
+	console->print(F("\tradioWrite\t"));
 	switch (result)
 	{
 	case action_rfSentFail: 
@@ -390,7 +395,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 		break;
 	case action_rfSentRetry: 
 		console->print(packet.retries);
-		console->print(F(" retry\t"));
+		console->print(F("retry\t"));
 
 		break;
 	case action_rfSentOk:
