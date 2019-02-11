@@ -124,30 +124,34 @@ void Houz::printToHost(byte result, byte node, u32 message){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Helpers 
 void Houz::statusLedBlink() {
-	statusLedAnim.step = 0;
-	statusLedAnim.stepInterval = 75;
-	statusLedAnim.steps = new byte[rf_led_idle, rf_led_high, rf_led_max, rf_led_high, rf_led_idle];
-	statusLedAnim.stepCount = 5;
-	statusLedAnim.on = true;
+	//  statusLedAnim.step = 0;
+	//  statusLedAnim.stepInterval = 100;
+	//  statusLedAnim.steps = new byte[rf_led_idle, rf_led_high, rf_led_max, rf_led_high, rf_led_idle];
+	//  statusLedAnim.stepCount = 5;
+	//  statusLedAnim.on = true;
 };
 void Houz::statusLedVoid() {
-	statusLedAnim.step = 0;
-	statusLedAnim.stepInterval = 75;
-	statusLedAnim.steps = new byte[rf_led_low, 0, 0, rf_led_low, rf_led_idle];
-	statusLedAnim.stepCount = 5;
-	statusLedAnim.on = true;
+	//  statusLedAnim.step = 0;
+	//  statusLedAnim.stepInterval = 100;
+	//  statusLedAnim.steps = new byte[rf_led_low, 0, 0, rf_led_low, rf_led_idle];
+	//  statusLedAnim.stepCount = 5;
+	//  statusLedAnim.on = true;
 };
 void Houz::statusLedRender() {
-	if (!statusLedAnim.on || statusLedAnim.nextStep > millis()) return;
-	statusLedAnim.nextStep = millis() + statusLedAnim.stepInterval;
+	// if (!statusLedAnim.on || statusLedAnim.nextStep > millis()) return;
+	// statusLedAnim.nextStep = millis() + statusLedAnim.stepInterval;
 
-	//step
-	analogWrite(statusLed, statusLedAnim.steps[statusLedAnim.step]);
+	// //step
+	// analogWrite(statusLed, statusLedAnim.steps[statusLedAnim.step]);
 
-	//end of animation
-	statusLedAnim.on = (statusLedAnim.step < statusLedAnim.stepCount);
-	if(!statusLedAnim.on) analogWrite(statusLed, radio_status?rf_led_idle:rf_led_low);
-	statusLedAnim.step++;
+	// //end of animation
+	// if(statusLedAnim.step >= statusLedAnim.stepCount){
+	// 	statusLedAnim.on = false;
+	// 	statusLedAnim.step=0;
+	// 	analogWrite(statusLed, radio_status?rf_led_idle:rf_led_low);
+	// }else{
+	// 	statusLedAnim.step++;
+	// }
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,6 +259,8 @@ bool Houz::radioRead()
 		radio->read(&_radioPayLoad, sizeof(unsigned long));
 	}
 
+	console->println(_radioPayLoad, HEX);
+
 	//decode payload
 	deviceData device = codec->decode(_radioPayLoad, _radioNode);
 
@@ -311,12 +317,7 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) 
 	if (!radio_status) return false;
 	if (!server_online) 
 		if (!radioSendQueue.isEmpty()) return false;
-	if (radioSendQueue.count() > 10) return false;
-
-	//pressure patch
-	if (deviceId==0x1C){
-		devicePayload=(devicePayload*100)-80000; //800hPa offset
-	}
+	if (radioSendQueue.count() > 5) return false;
 
 	//enqueue send
 	radioPacket packet;

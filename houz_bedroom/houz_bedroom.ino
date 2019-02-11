@@ -71,6 +71,13 @@ void loop() {
 void handleCommand(deviceData device) {
 	switch (device.id){
 
+ // AC control | N2DC210018 (24)
+ 	case suite_AC:
+		Serial.println("--AC");
+		if (device.cmd == CMD_SET) setAC(device.payload);
+    houz.radioSend(CMD_EVENT, suite_AC, getAC());
+		break;
+
  // main light | N2DC230001
  	case suite_light:
 		Serial.println("--light");
@@ -78,12 +85,6 @@ void handleCommand(deviceData device) {
     houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
 		break;
 
- // AC control | N2DC210018 (24)
- 	case suite_AC:
-		Serial.println("--AC");
-		if (device.cmd == CMD_SET) setAC(device.payload);
-    houz.radioSend(CMD_EVENT, suite_AC, getAC());
-		break;
 
  // ceiling fan | N2DC240001
  	case suite_fan:
@@ -97,13 +98,6 @@ void handleCommand(deviceData device) {
 		Serial.println("--enviroment");
     Weather cond = houzWeather.getWeather();
 		houz.radioSend(cond);
-		// weather_dump(cond);
-    // houz.radioSend(CMD_VALUE, suite_enviroment, cond.online);
-    // if(cond.online){
-    //   houz.radioSend(CMD_VALUE, suite_temp, cond.temp);
-    //   houz.radioSend(CMD_VALUE, suite_humidity, cond.hum);
-    //   houz.radioSend(CMD_VALUE, suite_pressure, cond.pressure);
-    // }
     break;
 
 	default:		  
@@ -122,30 +116,27 @@ void infraredRead() {
 }
 
 void handleIrCode(unsigned long irCode) {
-	Serial.print(F("IR.receive\t"));
 	switch (irCode)	{
 
 	//turn light on
-	case sonyIrDvrSelect:	Serial.println(F("DvrSelect")); houz.pushData(CMD_SET, suite_light, 2); break;
+	case sonyIrDvrSelect:	houz.pushData(CMD_SET, suite_light, 2); break;
 
 	//fan control
-	case sonyIrDvr1: Serial.println(F("dvr1")); houz.pushData(CMD_SET, suite_fan, 1); break;
-	case sonyIrDvr2: Serial.println(F("dvr2")); houz.pushData(CMD_SET, suite_fan, 2); break;
-	case sonyIrDvr3: Serial.println(F("dvr3")); houz.pushData(CMD_SET, suite_fan, 3); break;
-	case sonyIrDvr4: Serial.println(F("dvr4")); houz.pushData(CMD_SET, suite_fan, 4); break;
-	case sonyIrDvr0: Serial.println(F("dvr0")); houz.pushData(CMD_SET, suite_fan, 0); break;
+	case sonyIrDvr1: houz.pushData(CMD_SET, suite_fan, 1); break;
+	case sonyIrDvr2: houz.pushData(CMD_SET, suite_fan, 2); break;
+	case sonyIrDvr3: houz.pushData(CMD_SET, suite_fan, 3); break;
+	case sonyIrDvr4: houz.pushData(CMD_SET, suite_fan, 4); break;
+	case sonyIrDvr0: houz.pushData(CMD_SET, suite_fan, 0); break;
 
 	//push enviroment
-  case sonyIrDvrEnter: Serial.println(F("dvrEnter")); houz.pushData(CMD_QUERY, suite_enviroment, 0); break;
+  case sonyIrDvrEnter:houz.pushData(CMD_QUERY, suite_enviroment, 0); break;
 
 	//AC
-	case sonyIrDvrA: Serial.println(F("dvrA")); houz.pushData(CMD_SET, suite_AC, 24); break;
-	case sonyIrDvrB: Serial.println(F("dvrB")); houz.pushData(CMD_SET, suite_AC, 0); break;
+	case sonyIrDvrA: houz.pushData(CMD_SET, suite_AC, 24); break;
+	case sonyIrDvrB: houz.pushData(CMD_SET, suite_AC, 0); break;
 
 	//unknown code
   default:
-		Serial.print(F("irUnknown: 0x"));
-		Serial.println(irCode, HEX);
 		break;
 	}
 }
@@ -216,19 +207,19 @@ int getAC(){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enviroment sensor | BME280
-void getWeather(){
-    weather_dump(houzWeather.getWeather());
-}
+// void getWeather(){
+//     weather_dump(houzWeather.getWeather());
+// }
 
-void weather_dump(Weather cond){
-  Serial.print(F("bme280: ")); 
-  Serial.print(cond.online?"online":"offline"); 
-  Serial.print(F("\ttemp: ")); 
-  Serial.print(cond.temp);
-  Serial.print(F("°C\thum: ")); 
-  Serial.print(cond.hum);
-  Serial.print(F("%\tpressure: ")); 
-  Serial.print(cond.pressure);
-  Serial.print(F("hPa\tAltitude[m]: ")); 
-  Serial.println(cond.alt);
-}
+// void weather_dump(Weather cond){
+//   Serial.print(F("bme280: ")); 
+//   Serial.print(cond.online?"online":"offline"); 
+//   Serial.print(F("\ttemp: ")); 
+//   Serial.print(cond.temp);
+//   Serial.print(F("°C\thum: ")); 
+//   Serial.print(cond.hum);
+//   Serial.print(F("%\tpressure: ")); 
+//   Serial.print(cond.pressure);
+//   Serial.print(F("hPa\tAltitude[m]: ")); 
+//   Serial.println(cond.alt);
+// }

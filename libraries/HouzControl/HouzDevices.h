@@ -21,10 +21,10 @@
 // Suite
 #define suite_node		    0x2	 //N2DC02F0F0
 #define suite_enviroment	0x20 //bme280 sensors | N2DA200000
-#define suite_AC			0x21 //Air Conditioner on/off | N2DC230001
-#define suite_AC_temp		0x22 //Air Conditioner temperature | N2DC240001
-#define suite_light		    0x23 
-#define suite_fan			0x24 
+#define suite_light		    0x21 
+#define suite_fan			0x22 //N2DC220001
+#define suite_AC			0x23 //Air Conditioner on/off | N2DC230001
+#define suite_AC_temp		0x24 //Air Conditioner temperature | N2DC240001
 #define suite_temp			0x25 
 #define suite_humidity  	0x26 
 #define suite_pressure		0x27 
