@@ -72,6 +72,7 @@ private:
 	void init(byte NodeId, RF24 &_radio, byte _statusLed, Stream & serial);
 	Anim statusLedAnim;
 	void statusLedRender();
+	int statusLedLevel;
 
 	//commands
 	QueueArray<deviceData> commandsQueue;
@@ -109,5 +110,6 @@ private:
 	u8 clockPin;
 	word ioStatus;
 	void ioRender();
+
 
 };

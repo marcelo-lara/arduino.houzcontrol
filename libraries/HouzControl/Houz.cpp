@@ -29,6 +29,9 @@ TODO:
 #define rf_led_high		0x99
 #define rf_led_max		0xFF
 
+#define anim_blink		0x1
+#define anim_void			0x0
+
 HouzDevicesCodec* codec;
 
 bool server_online = false;
@@ -124,34 +127,33 @@ void Houz::printToHost(byte result, byte node, u32 message){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Helpers 
 void Houz::statusLedBlink() {
-	//  statusLedAnim.step = 0;
-	//  statusLedAnim.stepInterval = 100;
-	//  statusLedAnim.steps = new byte[rf_led_idle, rf_led_high, rf_led_max, rf_led_high, rf_led_idle];
-	//  statusLedAnim.stepCount = 5;
-	//  statusLedAnim.on = true;
+	statusLedAnim.id = anim_blink;
+	statusLedAnim.on = true;
+	statusLedLevel = 0x66;
 };
 void Houz::statusLedVoid() {
-	//  statusLedAnim.step = 0;
-	//  statusLedAnim.stepInterval = 100;
-	//  statusLedAnim.steps = new byte[rf_led_low, 0, 0, rf_led_low, rf_led_idle];
-	//  statusLedAnim.stepCount = 5;
-	//  statusLedAnim.on = true;
+	statusLedAnim.id = anim_void;
+	statusLedAnim.on = true;
+	statusLedLevel = 0x66;
 };
+int statusLedLevel = 0;
 void Houz::statusLedRender() {
-	// if (!statusLedAnim.on || statusLedAnim.nextStep > millis()) return;
-	// statusLedAnim.nextStep = millis() + statusLedAnim.stepInterval;
+	if (!statusLedAnim.on || statusLedAnim.nextStep > millis()) return;
+	statusLedAnim.nextStep = millis() + 50;
 
-	// //step
-	// analogWrite(statusLed, statusLedAnim.steps[statusLedAnim.step]);
-
-	// //end of animation
-	// if(statusLedAnim.step >= statusLedAnim.stepCount){
-	// 	statusLedAnim.on = false;
-	// 	statusLedAnim.step=0;
-	// 	analogWrite(statusLed, radio_status?rf_led_idle:rf_led_low);
-	// }else{
-	// 	statusLedAnim.step++;
-	// }
+	//step
+	switch (statusLedAnim.id)
+	{
+		case anim_blink:
+			statusLedLevel+=0xF;
+			statusLedAnim.on = statusLedLevel<0xFF;
+			break;
+		case anim_void:
+			statusLedLevel-=0xF;
+			statusLedAnim.on = statusLedLevel>0;
+			break;
+	}
+	analogWrite(statusLed, statusLedAnim.on?statusLedLevel:(radio_status?rf_led_idle:rf_led_low));
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -259,8 +261,6 @@ bool Houz::radioRead()
 		radio->read(&_radioPayLoad, sizeof(unsigned long));
 	}
 
-	console->println(_radioPayLoad, HEX);
-
 	//decode payload
 	deviceData device = codec->decode(_radioPayLoad, _radioNode);
 
@@ -279,7 +279,7 @@ bool Houz::radioRead()
 	}
 
 	//handle pong back command
-	if (device.hasData && device.id == node_id && device.cmd == CMD_QUERY) {
+	if (device.hasData && device.id == node_id && device.cmd == CMD_STATUS) {
 		radioSend(CMD_STATUS, device.id, (0xFFFF) & ~device.payload);
 		return false;
 	}
