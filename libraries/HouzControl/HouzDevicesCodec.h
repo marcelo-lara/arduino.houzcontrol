@@ -8,8 +8,9 @@ class HouzDevicesCodec{
 
         unsigned long StrToHex(char str[]);
         unsigned long StrToHex(String str);
-        u32 pressureEncode(u32 devicePayload);
-        u32 pressureDecode(u32 devicePayload);
+        
+        u32 pressureEncode(float devicePayload);
+        float pressureDecode(u32 devicePayload);
         
     private:
 };
