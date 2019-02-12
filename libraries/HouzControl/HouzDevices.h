@@ -24,7 +24,6 @@
 #define suite_light		    0x21 
 #define suite_fan			0x22 //N2DC220001
 #define suite_AC			0x23 //Air Conditioner on/off | N2DC230001
-#define suite_AC_temp		0x24 //Air Conditioner temperature | N2DC240001
 #define suite_temp			0x25 
 #define suite_humidity  	0x26 
 #define suite_pressure		0x27 

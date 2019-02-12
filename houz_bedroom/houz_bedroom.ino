@@ -80,7 +80,6 @@ void handleCommand(deviceData device) {
 
  // main light | N2DC230001
  	case suite_light:
-		Serial.println("--light");
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
     houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
 		break;
@@ -88,9 +87,8 @@ void handleCommand(deviceData device) {
 
  // ceiling fan | N2DC240001
  	case suite_fan:
-		Serial.println("--fan");
 		if (device.cmd == CMD_SET) setFanSpeed(device.payload);
-    houz.radioSend(CMD_EVENT, suite_fan, device.payload);
+    houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
 		break;
 
  // weather | N2DA200000
@@ -150,7 +148,6 @@ void switchRead() {
 	buttonState = digitalRead(inSwitch);
 	if (buttonState == HIGH) return;
 	switchReadSt = millis() + 500;
-	Serial.println("switchRead\thit");
 
 	//handle status
 	houz.pushData(CMD_SET, suite_light, 2);
@@ -159,8 +156,6 @@ void switchRead() {
 void setMainLight(int state){ //todo: check this..
   if(state>1) state=!digitalRead(mainLight)==0?1:0;
   digitalWrite(mainLight, state==1?0:1);
-	Serial.print("\tstatus\t");
-	Serial.println(getMainLight());
 }
 
 bool getMainLight(){
@@ -170,8 +165,6 @@ bool getMainLight(){
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Fan control
 void setFanSpeed(int fanSpeed){
-	Serial.print("fan\t");
-	Serial.println(fanSpeed);
 	switch (fanSpeed)
 	{
 		case 0: houz.setIo(B0); break;
@@ -182,7 +175,7 @@ void setFanSpeed(int fanSpeed){
 		default: break;
 	}	
 }
-word getFanSpeed(int fanSpeed){
+word getFanSpeed(){
 	Serial.print("fan\t");
 	Serial.println(houz.getIoStatus());
 
@@ -193,6 +186,7 @@ word getFanSpeed(int fanSpeed){
 // AC control
 int acStatus = 0;
 void setAC(int state){
+	if(state=1) state=24;
 	Serial.print("AC\t");
 	Serial.print(state>0?"on":"off"); 
 	Serial.print("\t");
@@ -207,19 +201,3 @@ int getAC(){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Enviroment sensor | BME280
-// void getWeather(){
-//     weather_dump(houzWeather.getWeather());
-// }
-
-// void weather_dump(Weather cond){
-//   Serial.print(F("bme280: ")); 
-//   Serial.print(cond.online?"online":"offline"); 
-//   Serial.print(F("\ttemp: ")); 
-//   Serial.print(cond.temp);
-//   Serial.print(F("°C\thum: ")); 
-//   Serial.print(cond.hum);
-//   Serial.print(F("%\tpressure: ")); 
-//   Serial.print(cond.pressure);
-//   Serial.print(F("hPa\tAltitude[m]: ")); 
-//   Serial.println(cond.alt);
-// }
