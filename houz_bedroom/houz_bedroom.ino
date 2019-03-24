@@ -1,4 +1,3 @@
-
 /*
  Name:		houz_bedroom.ino
  Created:	29-JAN-18
@@ -69,16 +68,14 @@ void loop() {
 }
 
 void handleCommand(deviceData device) {
-	Serial.print("handle: ");
-	Serial.println(device.id);
 	switch (device.id){
 
 // node status
 	case suite_node:
+		houz.radioSend(houzWeather.getWeather());
     houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
     houz.radioSend(CMD_EVENT, suite_AC, getAC());
     houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
-		houz.radioSend(houzWeather.getWeather());
 		break;
 
  // AC control
@@ -94,7 +91,6 @@ void handleCommand(deviceData device) {
     houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
 		break;
 
-
  // ceiling fan
  	case suite_fan:
 		if (device.cmd == CMD_SET) setFanSpeed(device.payload);
@@ -107,7 +103,7 @@ void handleCommand(deviceData device) {
     break;
 
 	default:		  
-		Serial.println("--unknown " + device.raw);
+		Serial.println("wtf? " + device.raw);
 		break;
 	}	  
 };
@@ -183,11 +179,15 @@ void setFanSpeed(int fanSpeed){
 		default: break;
 	}	
 }
-word getFanSpeed(){
-	Serial.print("fan\t");
-	Serial.println(houz.getIoStatus());
-
-	//houz.getIoStatus();
+int getFanSpeed(){
+	switch (houz.getIoStatus())
+	{
+		case 8: return 1; break;
+		case 4: return 2; break;
+		case 2: return 3; break;
+		case 1: return 4; break;
+	}
+	return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -206,6 +206,3 @@ void setAC(int state){
 int getAC(){
 	return acStatus;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Enviroment sensor | BME280

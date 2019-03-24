@@ -39,7 +39,7 @@ public:
 
 typedef struct Weather{
 public:
-  bool online;
+	bool online;
 	float temp;
 	float hum;
 	float pressure;

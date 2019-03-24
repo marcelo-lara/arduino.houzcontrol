@@ -5,9 +5,7 @@
 class HouzWeather{
   public:
     HouzWeather(int sda, int scl);
-    bool read();
     bool init();
-    void dump();
     Weather getWeather();
 
   private:

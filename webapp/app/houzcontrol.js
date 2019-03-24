@@ -72,7 +72,7 @@ module.exports = {
                 console.log("\thumidity:", dev.fVal, "%");
                 break;
             case enm.typeEnm.pressure:
-                dev.fVal = payload / 100;
+                dev.fVal = (payload / 100) + 850;
                 console.log("\pressure:", dev.fVal, "hPa");
                 break;
 

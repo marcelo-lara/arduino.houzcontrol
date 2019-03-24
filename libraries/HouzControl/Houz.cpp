@@ -284,8 +284,8 @@ bool Houz::radioRead()
 		console->println(F("\tpong\tback"));
 		return false;
 	}
-	console->print(F("dev:"));
-	console->println(device.id);
+	console->print(F("rfIn> "));
+	console->println(device.id, HEX);
 
 	//handle command
 	pushData(device);
@@ -309,8 +309,6 @@ bool Houz::radioSend(Weather weather){
 			radioSend(CMD_VALUE, suite_temp, weather.temp*100);
 			radioSend(CMD_VALUE, suite_humidity, weather.hum*100);
 			radioSend(CMD_VALUE, suite_pressure, codec->pressureEncode(weather.pressure));
-  	  console->print(F("%\tpressure: ")); 
-			console->print(codec->pressureEncode(weather.pressure));	
 		}
 	}
 	return true;
@@ -320,7 +318,7 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) 
 	if (!radio_status) return false;
 	if (!server_online) 
 		if (!radioSendQueue.isEmpty()) return false;
-	if (radioSendQueue.count() > 5) return false;
+	if (radioSendQueue.count() > 9) return false;
 
 	//enqueue send
 	radioPacket packet;
@@ -328,10 +326,9 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) 
 	packet.node = nodeId;
 	packet.retries = 0;
 	radioSendQueue.enqueue(packet);
-
 	if (node_id == server_node) return true;
 
-	console->print(F("\tradioSend\tpush\t"));
+	console->print(F("\trfSnd\tpush\t"));
 	printRadioPacket(packet);
 	console->println();
 	return true;
@@ -404,7 +401,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 	}
 
 	//hosts
-	console->print(F("\tradioWrite\t"));
+	console->print(F("\trfWrt\t"));
 	switch (result)
 	{
 	case action_rfSentFail: 

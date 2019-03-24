@@ -24,11 +24,11 @@ div.ac>div{padding:1em;background-color: #ccc;cursor: pointer;margin:1pt;flex:1;
 div.ac>div:first-child {flex: 0 0 5em !important;}
 
 /* wheather */
-div.env {flex: 1; display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; grid-template-areas: "temp temp hum" "temp temp press"}
-div.env>div{padding:5pt;background-color: #ccc;margin:1pt;}
-div.env .temp {grid-area: temp;font-size: 2em;/* text-align: center; *//* vertical-align: middle; */}
-div.env .temp:after {content: "º"}
-div.env .hum {grid-area: hum;}
-div.env .hum:after {content: "%"}
-div.env .press {grid-area: press;}
-div.env .press:after {content: "hPa"}
+div.weather {flex: 1; display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; grid-template-areas: "temp temp hum" "temp temp press"}
+div.weather>div{padding:5pt;background-color: #ccc;margin:1pt;}
+div.weather .temp {grid-area: temp;font-size: 2em;/* text-align: center; *//* vertical-align: middle; */}
+div.weather .temp:after {content: "º"}
+div.weather .hum {grid-area: hum;}
+div.weather .hum:after {content: "%"}
+div.weather .press {grid-area: press;}
+div.weather .press:after {content: "hPa"}

@@ -20,20 +20,12 @@ bool HouzWeather::init(){
 		_current.online = (bme280.init() ==		0x60);
 		return _current.online;
 }
-bool HouzWeather::read(){
-	if(!_current.online) init();
+
+Weather HouzWeather::getWeather(){
+  if(!_current.online) init();
   _current.temp=bme280.readTempC();
   _current.hum=bme280.readHumidity();
   _current.pressure=bme280.readPressure();
   _current.alt=bme280.readAltitudeMeter();
-  return true;
-};
-
-void HouzWeather::dump(){
-};
-
-Weather HouzWeather::getWeather(){
-	if(!_current.online) read();
-
-	return _current;
+  return _current;
 };

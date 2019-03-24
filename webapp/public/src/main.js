@@ -5,6 +5,8 @@ let cmdEnm = [];
 const deviceHandler = {
   reload: ()=>{
     devices.forEach(ui.update); 
+    if(!ui.binded)
+      devices.forEach(ui.bind); 
   },
   update: (_upd)=>{
     let dev=devices.find(x=>x.id==_upd.id);
@@ -15,7 +17,6 @@ const deviceHandler = {
     }
     dev=_upd;
     ui.update(dev);
-
   }
 };
 
@@ -68,19 +69,49 @@ const ui = {
     }
   },
 
-  bind: (elem)=>{
+  bind: (dev)=>{
+    const elem=ui.getDevElem(dev.id);
+    if(!elem){
+      console.log('ui.bind | element not found',dev);
+      return;
+    }
     
     // bind light
     if(elem.classList.contains("light")){
       elem.addEventListener("click", (ev)=>{
         socket.emit('command', {
-          id: parseInt(ev.srcElement.attributes.dev.value),
+          id: parseInt(elem.attributes.dev.value),
           cmd: cmdEnm.CMD_SET,
-          payload: ev.srcElement.classList.contains('on')?0:1
+          payload: elem.classList.contains('on')?0:1
         })
       })
     }
 
+    // bind fan
+    if(elem.classList.contains("fan")){
+      for(i=0; i<elem.children.length; i++){
+        console.log(elem.children[i]);
+        let pkt={
+          id: parseInt(elem.attributes.dev.value),
+          cmd: cmdEnm.CMD_SET,
+          payload: i
+        };
+        elem.children[i].addEventListener("click", ()=>{
+          console.log(pkt);
+          socket.emit('command', pkt)
+        });
+      }
+    }
+
+    // bind wheater
+    if(elem.classList.contains("weather")){
+      elem.addEventListener("click", (ev)=>{
+        socket.emit('command', {
+          id: parseInt(elem.attributes.dev.value),
+          cmd: cmdEnm.CMD_QUERY
+        })
+      })
+    }
 
   },
 
@@ -100,5 +131,5 @@ const ui = {
 
 
 (()=>{
-  document.querySelectorAll("[dev]").forEach(ui.bind);
+  //document.querySelectorAll("[dev]").forEach(ui.bind);
 })();
