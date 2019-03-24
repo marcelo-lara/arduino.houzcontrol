@@ -110,6 +110,4 @@ private:
 	u8 clockPin;
 	word ioStatus;
 	void ioRender();
-
-
 };

@@ -281,8 +281,11 @@ bool Houz::radioRead()
 	//handle pong back command
 	if (device.hasData && device.id == node_id && device.cmd == CMD_STATUS) {
 		radioSend(CMD_STATUS, device.id, (0xFFFF) & ~device.payload);
+		console->println(F("\tpong\tback"));
 		return false;
 	}
+	console->print(F("dev:"));
+	console->println(device.id);
 
 	//handle command
 	pushData(device);

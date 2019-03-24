@@ -1,20 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Arduino-Node-SocketIO</title>
+    <title>HouzControl 0.2</title>
+    <link rel="stylesheet" type="text/css" href="index.css">
+
 </head>
+
 <body>
-    <style>
-        body {
-            transition: all .1s;
-            /* transition for smoothness */
-        }
-    </style>
-    <button id="cbBtn">callback..</button>
+    <style></style>
+
+    <div class="node">
+        <h2>
+            Suite
+            <span>query</span>
+        </h2>
+        <div class="devices">
+            <div class="row">
+                <!--light-->
+                <div class="light" dev="33">
+                    light
+                </div>
+
+                <!--enviroment-->
+                <div class="env" dev="37">
+                    <div class="temp" dev="38">-</div>
+                    <div class="hum" dev="39">-</div>
+                    <div class="press" dev="40">-</div>
+                </div>
+
+            </div>
+            <div class="row">
+                <!--fan-->
+                <div class="fan" dev="34">
+                    <div class="on">off</div>
+                    <div>1</div>
+                    <div>2</div>
+                    <div>3</div>
+                    <div>4</div>
+                </div>
+            </div>
+            <div class="row">
+                <!--ac-->
+                <div class="ac" dev="35">
+                    <div>AC</div>
+                    <div>temp</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--app-->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="index.js"></script>
+    <script src="/src/main.js"></script>
+    <script src="/src/sockets.js"></script>
 </body>
+
 </html>

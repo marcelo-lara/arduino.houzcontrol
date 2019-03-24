@@ -69,33 +69,41 @@ void loop() {
 }
 
 void handleCommand(deviceData device) {
+	Serial.print("handle: ");
+	Serial.println(device.id);
 	switch (device.id){
 
- // AC control | N2DC210018 (24)
+// node status
+	case suite_node:
+    houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
+    houz.radioSend(CMD_EVENT, suite_AC, getAC());
+    houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
+		houz.radioSend(houzWeather.getWeather());
+		break;
+
+ // AC control
  	case suite_AC:
 		Serial.println("--AC");
 		if (device.cmd == CMD_SET) setAC(device.payload);
     houz.radioSend(CMD_EVENT, suite_AC, getAC());
 		break;
 
- // main light | N2DC230001
+ // main light
  	case suite_light:
 		if (device.cmd == CMD_SET) setMainLight(device.payload);
     houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
 		break;
 
 
- // ceiling fan | N2DC240001
+ // ceiling fan
  	case suite_fan:
 		if (device.cmd == CMD_SET) setFanSpeed(device.payload);
     houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
 		break;
 
- // weather | N2DA200000
+ // weather
   case suite_enviroment:
-		Serial.println("--enviroment");
-    Weather cond = houzWeather.getWeather();
-		houz.radioSend(cond);
+		houz.radioSend(houzWeather.getWeather());
     break;
 
 	default:		  

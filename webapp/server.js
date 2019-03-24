@@ -4,16 +4,13 @@ const express = require('express')
 const app = express()
 const serialport = require('serialport')
 const sp_readline = serialport.parsers.Readline
+const enums = require('./app/enums');
 const houzcontrol = require('./app/houzcontrol');
 
 const port = 3000
 const Server = http.createServer(app)
 const io = require('socket.io').listen(Server)
-
 app.use(express.static(__dirname + '/public'))
-
-var devices=new Array();
-
 // debug
 serialport.list((err, ports)=>{
   ports.forEach(port=>{
@@ -31,9 +28,9 @@ serialPort.on('open', () => {
 })
 
 parser.on('data', data => {
-  let dev = houzcontrol.parse(data);
+  let dev = houzcontrol.parse(data, serialPort);
   if(dev)  
-    io.emit('data', dev)
+    io.emit('update', dev)
 });
 
 // clients handling
@@ -45,26 +42,22 @@ io.on('connection', socket => {
   });  
 
   socket.on('command', data=>{
-    console.log('io ', socket.id,' msg | ',data);
+    console.log('io.cmd | ', socket.id,'>',data);
+
+    const pkt = houzcontrol.encodePacket(data);
+    if(pkt)
+      serialPort.write(pkt+"\n")
   });
 
   // deliver device list to client
-  socket.emit('data', houzcontrol.devices);
+  socket.emit('data', {
+    'devices': houzcontrol.devices,
+    'typeEnm': enums.typeEnm,
+    'cmdEnm': enums.cmdEnm
+  });
 });
-
 
 Server.listen(port, () => {
   console.log(`Express server started on ${port}`)
 })
 
-class Device {
-  constructor(id, name) {
-    this.id = id;
-    this.name = name;
-    this.lastUpdate = new Date();
-    this.iVal=0;
-    this.fVal=0;
-    this.devType=0;
-    this.devNode = 0;
-  }
-}
