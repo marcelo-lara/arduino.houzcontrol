@@ -2,24 +2,29 @@
 const http = require('http')
 const express = require('express')
 const app = express()
-const serialport = require('serialport')
-const sp_readline = serialport.parsers.Readline
+
+const serial = require('serialport')
+const sp_readline = serial.parsers.Readline
 const enums = require('./app/enums');
 const houzcontrol = require('./app/houzcontrol');
+const portName="com7"; //"/dev/ttyUSB0"; //com7
 
 const port = 3000
 const Server = http.createServer(app)
 const io = require('socket.io').listen(Server)
 app.use(express.static(__dirname + '/public'))
+
 // debug
-serialport.list((err, ports)=>{
+serial.list((err, ports)=>{
+  console.log('--SERIAL--');
   ports.forEach(port=>{
-    console.log('port', port.comName, port);
+    console.log('>', port);
   });
 });
 
+
 // serial port connection
-const serialPort = new serialport('COM7', {baudRate: 115200})
+const serialPort = new serial(portName, {baudRate: 115200});
 const parser = new sp_readline()
 
 serialPort.pipe(parser);

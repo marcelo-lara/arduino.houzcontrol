@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  webserver:
+    build: 
+      context: .
+    container_name: 'houzcontrol'
+    #restart: 'always'
+    #environment:
+    ports:
+      - '3000:3000'
