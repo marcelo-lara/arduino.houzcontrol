@@ -6,9 +6,11 @@ const toHex = (val, len) => {
 
 module.exports = {
     parse: (data, _serial) => {
+        console.log('->', data);
+
         let matches = data.match(/\[(.{6,11})\]/);
         if (!matches) {
-            //console.log('--houz.parse ERR |', data);
+            console.log('--houz.parse ERR |', data);
             return;
         }
         const _rawdev = matches[1];
@@ -22,19 +24,19 @@ module.exports = {
         //split packet
         const _act = parseInt(_rawdev.substring(0, 1), 16);
 
+        // debug
+        // console.log('\t--', module.exports.actToStr(_act));
+        // console.log('\tnode\t', _node);
+        // console.log('\tdev\t', _dev, parseInt(_dev, 16));
+        // console.log('\tcmd\t', _cmd);
+        // console.log('\tpayload\t', _payload);
+
         if (_act !== enm.actEnm.action_rfReceived) return; //udpate only on rfReceived
         const _node = parseInt(_rawdev.substring(2, 3), 16);
         const _cmd = parseInt(_rawdev.substring(4, 5), 16);
         const _dev = parseInt(_rawdev.substring(5, 7), 16);
         const _payload = parseInt(_rawdev.substring(7, 11), 16);
         return module.exports.updateDevice(_dev, _payload, _cmd, _serial);
-
-        // debug
-        console.log('\t--', module.exports.actToStr(_act));
-        console.log('\tnode\t', _node);
-        console.log('\tdev\t', _dev, parseInt(_dev, 16));
-        console.log('\tcmd\t', _cmd);
-        console.log('\tpayload\t', _payload);
     },
 
     //update device
@@ -73,7 +75,14 @@ module.exports = {
                 break;
             case enm.typeEnm.pressure:
                 dev.fVal = (payload / 100) + 850;
-                console.log("\pressure:", dev.fVal, "hPa");
+                console.log("\tpressure:", dev.fVal, "hPa");
+                break;
+
+            case enm.typeEnm.array2x:
+            case enm.typeEnm.array4x:
+            case enm.typeEnm.array8x:
+                dev.iVal = payload;
+                console.log("\tarray:", dev.iVal, "B");
                 break;
 
             default:
@@ -110,17 +119,34 @@ module.exports = {
     devices: [
         { id: 0x00, name: 'server_node', type: enm.typeEnm.node, fVal: 0, iVal: 0 },
 
+        // Office
+        {name: 'office_node',       id:  0x1, type: enm.typeEnm.node, node: 1}, //N1DC04F0F0
+        {name: 'office_AC',         id: 0x11, type: enm.typeEnm.ac, node: 1}, //Air Conditioner on/off
+        {name: 'office_light',      id: 0x13, type: enm.typeEnm.light, node: 1}, //ceiling light | N1DC130001
+        {name: 'external_light',    id: 0x17, type: enm.typeEnm.envlight, node: 1}, //light sensor [0-1024]
+        {name: 'external_temp',     id: 0x1A, type: enm.typeEnm.temp, node: 1}, //temperature [celsius /100] | N1DA1A0000
+        {name: 'external_humidity', id: 0x1B, type: enm.typeEnm.humidity, node: 1}, //humidity [%] | N1DA1B0000
+        {name: 'external_pressure', id: 0x1C, type: enm.typeEnm.pressure, node: 1}, //pressure [hPa /FIX THIS ((x-900) * 100?)] | N1DA1C0000
+        {name: 'external_weather',  id: 0x1F, type: enm.typeEnm.enviroment, node: 1}, //all devices | N1DA1F0099
+
         //suite devices
-        { id: 0x2,  node: 2, name: 'suite_node',        type: enm.typeEnm.node,     fVal: 0, iVal: 0 },
-        { id: 0x21, node: 2, name: 'suite_light',       type: enm.typeEnm.light,    fVal: 0, iVal: 0 },
-        { id: 0x22, node: 2, name: 'suite_fan',         type: enm.typeEnm.fan,      fVal: 0, iVal: 0 },
-        { id: 0x23, node: 2, name: 'suite_AC',          type: enm.typeEnm.ac,       fVal: 0, iVal: 0 },
-        { id: 0x25, node: 2, name: 'suite_enviroment',  type: enm.typeEnm.enviroment, fVal: 0, iVal: 0 },
-        { id: 0x26, node: 2, name: 'suite_temp',        type: enm.typeEnm.temp,     fVal: 0, iVal: 0 },
-        { id: 0x27, node: 2, name: 'suite_humidity',    type: enm.typeEnm.humidity, fVal: 0, iVal: 0 },
-        { id: 0x28, node: 2, name: 'suite_pressure',    type: enm.typeEnm.pressure, fVal: 0, iVal: 0 },
-
+        {name: 'suite_node',		id: 0x2,  type: enm.typeEnm.node,      node: 2},
+        {name: 'suite_light',		id: 0x21, type: enm.typeEnm.light,     node: 2},
+        {name: 'suite_fan',			id: 0x22, type: enm.typeEnm.fan,       node: 2},
+        {name: 'suite_AC',			id: 0x23, type: enm.typeEnm.ac,        node: 2},
+        {name: 'suite_enviroment',	id: 0x25, type: enm.typeEnm.enviroment,node: 2},
+        {name: 'suite_temp',		id: 0x26, type: enm.typeEnm.temp,      node: 2},
+        {name: 'suite_humidity',	id: 0x27, type: enm.typeEnm.humidity,  node: 2},
+        {name: 'suite_pressure',	id: 0x28, type: enm.typeEnm.pressure,  node: 2},
+		
+		//living devices
+        {name: 'living_node',       id:  0x3, type: enm.typeEnm.node,    node: 3},
+        {name: 'living_mainLight',  id: 0x33, type: enm.typeEnm.array2x, node: 3},  
+        {name: 'living_dicroLight', id: 0x34, type: enm.typeEnm.array8x, node: 3},  
+        {name: 'living_spotLight',  id: 0x35, type: enm.typeEnm.array4x, node: 3},  
+        {name: 'living_fxLight',    id: 0x36, type: enm.typeEnm.array2x, node: 3},  
+        {name: 'living_fx',         id: 0x37, type: enm.typeEnm.fxanim,  node: 3},  
+        {name: 'living_AC',         id: 0x38, type: enm.typeEnm.ac,      node: 3}
     ]
-
 }
 

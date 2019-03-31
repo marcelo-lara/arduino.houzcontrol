@@ -10,8 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.8.1",
     "express": "^4.16.4",
+    "fontawesome": "5.6.3",
     "serialport": "^7.1.4",
     "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "font-awesome": "^4.7.0"
   }
 }

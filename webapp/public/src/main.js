@@ -29,6 +29,8 @@ const ui = {
       console.log('ui.update | target not found',dev);
       return;
     }
+    if(dev.iVal===undefined) dev.iVal=0;
+    if(dev.fVal===undefined) dev.fVal=0;
 
     switch (dev.type) {
 
@@ -40,7 +42,24 @@ const ui = {
           target.classList.remove('on');
         break;
     
-      // enviroment device
+      case typeEnm.array2x:
+      case typeEnm.array4x:
+      case typeEnm.array8x:
+        let rval="00000000"+dev.iVal.toString(2);
+        rval=rval.substring(rval.length-8);
+        target.setAttribute('data',rval);
+        for(i=0; i<target.children.length; i++){
+          targetChild=target.children[i].classList;
+          if(rval[7-i]==="1")
+          {
+            if(!targetChild.contains('on')) targetChild.add('on');
+          }else{
+            if(targetChild.contains('on')) targetChild.remove('on');
+          }
+        }
+        break;
+
+      // enviroment device /////////////////////////
       case typeEnm.temp:
       case typeEnm.humidity:
       case typeEnm.pressure:
@@ -76,34 +95,7 @@ const ui = {
       return;
     }
     
-    // bind light
-    if(elem.classList.contains("light")){
-      elem.addEventListener("click", (ev)=>{
-        socket.emit('command', {
-          id: parseInt(elem.attributes.dev.value),
-          cmd: cmdEnm.CMD_SET,
-          payload: elem.classList.contains('on')?0:1
-        })
-      })
-    }
-
-    // bind fan
-    if(elem.classList.contains("fan")){
-      for(i=0; i<elem.children.length; i++){
-        console.log(elem.children[i]);
-        let pkt={
-          id: parseInt(elem.attributes.dev.value),
-          cmd: cmdEnm.CMD_SET,
-          payload: i
-        };
-        elem.children[i].addEventListener("click", ()=>{
-          console.log(pkt);
-          socket.emit('command', pkt)
-        });
-      }
-    }
-
-    // bind wheater
+    // bind wheater //////////////////////////////////////////////
     if(elem.classList.contains("weather")){
       elem.addEventListener("click", (ev)=>{
         socket.emit('command', {
@@ -111,6 +103,67 @@ const ui = {
           cmd: cmdEnm.CMD_QUERY
         })
       })
+    }
+
+    switch (dev.type) {
+      // bind lights //////////////////////////////////////////////
+        case typeEnm.light:
+          elem.addEventListener("click", (ev)=>{
+            socket.emit('command', {
+              id: parseInt(elem.attributes.dev.value),
+              cmd: cmdEnm.CMD_SET,
+              payload: elem.classList.contains('on')?0:1
+            })
+          })
+        break;
+
+        case typeEnm.array2x:
+        case typeEnm.array4x:
+        case typeEnm.array8x:
+          for(i=0; i<elem.children.length; i++){
+            let bit=Math.pow(2, i);
+            let pkt={id: dev.id, cmd: cmdEnm.CMD_SET, payload: (i+1)};
+            elem.children[i].addEventListener("click", (ev)=>{
+              const srcElement = ev.srcElement;
+              let currVal = parseInt( ev.srcElement.parentElement.attributes.data.value,2);
+              if(srcElement.classList.contains('on'))
+                currVal -= bit;
+              else
+                currVal += bit;
+              pkt.payload=currVal;
+              socket.emit('command', pkt)
+            });
+          }
+          break;
+      
+      // bind fan //////////////////////////////////////////////
+      case typeEnm.fan:
+          for(i=0; i<elem.children.length; i++){
+            let pkt={
+              id: parseInt(elem.attributes.dev.value),
+              cmd: cmdEnm.CMD_SET,
+              payload: i
+            };
+            elem.children[i].addEventListener("click", ()=>{
+              socket.emit('command', pkt)
+            });
+          }        
+          break;
+      case typeEnm.fxanim:
+      for(i=0; i<elem.children.length; i++){
+        let pkt={
+          id: parseInt(elem.attributes.dev.value),
+          cmd: cmdEnm.CMD_SET,
+          payload: parseInt(elem.children[i].attributes.val.value,16)
+        };
+        elem.children[i].addEventListener("click", ()=>{
+          socket.emit('command', pkt)
+        });
+      }        
+    break;
+
+      default:
+        break;
     }
 
   },

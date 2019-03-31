@@ -16,12 +16,12 @@
     <div class="node">
         <h2>
             Suite
-            <span>query</span>
+            <span class="query"></span>
         </h2>
         <div class="devices">
             <div class="row">
                 <!--light-->
-                <div class="light" dev="33">
+                <div class="light b1 x1" dev="33">
                     light
                 </div>
 
@@ -36,22 +36,108 @@
             <div class="row">
                 <!--fan-->
                 <div class="fan" dev="34">
-                    <div class="on">off</div>
-                    <div>1</div>
-                    <div>2</div>
-                    <div>3</div>
-                    <div>4</div>
+                    <div class="b1 on">off</div>
+                    <div class="b4">1</div>
+                    <div class="b4">2</div>
+                    <div class="b4">3</div>
+                    <div class="b4">4</div>
                 </div>
             </div>
             <div class="row">
                 <!--ac-->
                 <div class="ac" dev="35">
-                    <div>AC</div>
+                    <div class="b1">AC</div>
                     <div>temp</div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="node">
+        <h2>
+            Living
+            <span class="query"></span>
+        </h2>
+        <div class="row">
+            <!--light-->
+            <div class="light b1 x1" dev="50">
+                light
+            </div>
+            <div>
+            <div class="row">
+                <!--2x mainlight-->
+                <div class="light x2" dev="51">
+                    <div class="b4">m1</div>
+                    <div class="b4">m2</div>
+                </div>
+                <!--4x spotlight-->
+                <div class="light x4" dev="53">
+                    <div class="b4">s1</div>
+                    <div class="b4">s2</div>
+                    <div class="b4">s3</div>
+                    <div class="b4">s4</div>
+                </div>
+                <!--2x fxlight-->
+                <div class="light x2" dev="54">
+                    <div class="b4">fx1</div>
+                    <div class="b4">fx2</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="light x8" dev="52">
+                    <div class="b4">d1</div>
+                    <div class="b4">d2</div>
+                    <div class="b4">d3</div>
+                    <div class="b4">d4</div>
+                    <div class="b4">d5</div>
+                    <div class="b4">d6</div>
+                    <div class="b4">d7</div>
+                    <div class="b4">d8</div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="fxanim" dev="55">
+                    <div class="b4" val="0x00">clr</div>
+                    <div class="b4" val="0x01">dicro On</div>
+                    <div class="b4" val="0x02">dicro Off</div>
+                    <div class="b4" val="0x10">dungeon On</div>
+                    <div class="b4" val="0x1F">dungeon Off</div>
+                </div>
+            </div>
+
+        </div>
+
+        </div>
+    </div>
+    <div class="node">
+        <h2>
+            Office
+            <span class="query"></span>
+        </h2>
+        <div class="devices">
+            <div class="row">
+                <!--light-->
+                <div class="light b1 x1" dev="19">
+                    light
+                </div>
+
+                <!--enviroment-->
+                <div class="weather" dev="31">
+                    <div class="temp" dev="26">-</div>
+                    <div class="hum" dev="27">-</div>
+                    <div class="press" dev="28">-</div>
+                </div>
+
+            </div>
+            <div class="row">
+                <!--ac-->
+                <div class="ac" dev="11">
+                    <div class="b1">AC</div>
+                    <div>temp</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!--app-->
     <script src="/socket.io/socket.io.js"></script>

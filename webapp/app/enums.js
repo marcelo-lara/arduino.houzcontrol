@@ -7,7 +7,12 @@ module.exports = {
         enviroment: 4,
         temp: 5,
         humidity: 6,
-        pressure: 7
+        pressure: 7,
+        array2x: 8,
+        array4x: 9,
+        array8x: 10,
+        envlight: 11,
+        fxanim: 12
     },
     actEnm: {
         action_log			: 0x00,

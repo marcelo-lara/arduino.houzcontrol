@@ -14,6 +14,9 @@ const Server = http.createServer(app)
 const io = require('socket.io').listen(Server)
 app.use(express.static(__dirname + '/public'))
 
+const fa = require("fontawesome");
+console.log(fa("fort-awesome") + " Hello World!"); // Hello World!
+
 // debug
 serial.list((err, ports)=>{
   console.log('--SERIAL--');
