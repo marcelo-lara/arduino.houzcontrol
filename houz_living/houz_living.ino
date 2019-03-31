@@ -13,11 +13,9 @@
 	74HC595
 */
 
-#include <HouzSonyRemote.h>
-#include <HouzIrCodes.h>
 #include <IRremote.h>
 #include <IRremoteInt.h>
-#include <HouzInfrared.h>
+#include <HouzIrCodes.h>
 #include <Houz.h>
 
 //serial setup
@@ -44,9 +42,9 @@ IRsend irsend;
 
 //lighting logic   controller outputs
 byte dicroLight;	// ---- ---- XXXX XXXX
-byte mainLight;	// ---- --XX ---- ----
+byte mainLight;		// ---- --XX ---- ----
 byte spotlLight;	// --XX XX-- ---- ----
-byte fxLight;	// XX-- ---- ---- ----
+byte fxLight;		// XX-- ---- ---- ----
 
 //dragon box fx
 bool	dungeonMode = false;
@@ -62,12 +60,10 @@ void setup() {
 
 	//io setup
 	pinMode(inSwitch, INPUT_PULLUP);
-	houz.setIo(0xFFFF);
+	houz.setIo(0);
 
 	//ir setup
 	irrecv.enableIRIn();	
-
-	Serial.println("");
 }
 
 void loop() {
@@ -82,22 +78,22 @@ void handleCommand(deviceData device) {
 	switch (device.id){
 
 	case living_node		: //ping node
-		Serial.println("[living_node] ping");
+		Serial.println("status");
+		houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
+		houz.radioSend(CMD_VALUE, living_dicroLight, dicroLight);
+		houz.radioSend(CMD_VALUE, living_fxLight, fxLight);
+		houz.radioSend(CMD_VALUE, living_spotLight, spotlLight);
 		break;
 
-	case living_switchLed	: // switch led intensity
-		Serial.println("[living_switchLed] ");
+	case living_rawRender	: // set outputs to payload
+		Serial.println("rawRender");
 		if (device.cmd == CMD_SET) houz.setIo(device.payload);
 		break;
 
 //////////////////
 // APPLIANCES
 	case living_AC			:
-		Serial.println("[living_AC]");
-		break;
-
-	case living_AC_temp		: 
-		Serial.println("[living_AC_temp]");
+		Serial.println("ac");
 		break;
 
 //////////////////
@@ -115,7 +111,7 @@ void handleCommand(deviceData device) {
 		break;
 
 	case living_dicroLight: // dicro array
-		Serial.println("[living_dicroLight] ");
+		Serial.println("[dicroLight] ");
 		if (device.cmd == CMD_SET) {
 			renderLights(living_dicroLight, device.payload);
 			if (dungeonMode) dungeonChanged = true;
@@ -123,8 +119,8 @@ void handleCommand(deviceData device) {
 		houz.radioSend(CMD_VALUE, device.id, dicroLight);
 		break;
 
-	case living_spotLight: // 2x spotlights
-		Serial.println("[living_spotLight] ");
+	case living_spotLight: // 4x spotlights
+		Serial.println("[spotLight] ");
 		if (device.cmd == CMD_SET) {
 			renderLights(living_spotLight, device.payload);
 			if (dungeonMode) dungeonChanged = true;
@@ -132,10 +128,10 @@ void handleCommand(deviceData device) {
 		houz.radioSend(CMD_VALUE, device.id, spotlLight);
 		break;
 
-	case living_auxLight: // 2x lighting fx
-		Serial.println("[living_auxLight] ");
+	case living_fxLight: // 2x lighting fx
+		Serial.println("[fxLight] ");
 		if (device.cmd == CMD_SET) {
-			renderLights(living_auxLight, device.payload);
+			renderLights(living_fxLight, device.payload);
 			if (dungeonMode) dungeonChanged = true;
 		}
 		houz.radioSend(CMD_VALUE, device.id, fxLight);
@@ -144,10 +140,11 @@ void handleCommand(deviceData device) {
 
 //////////////////
 // FX
-	case living_fx: // raw fx controller
+	case living_fx: // fx controller
 		Serial.println("[living_fx] ");
 		if (device.cmd == CMD_SET) 
 			animSetup(device.payload);
+	
 		break;
 
 	case 0:
@@ -220,7 +217,7 @@ void renderLights(int module, int outSetting) {
 	case living_dicroLight: dicroLight = outSetting; break;
 	case living_mainLight: mainLight = outSetting; break;
 	case living_spotLight: spotlLight = outSetting; break;
-	case living_auxLight: fxLight = outSetting; break;
+	case living_fxLight: fxLight = outSetting; break;
 	}
 
 	unsigned long out = 0;
@@ -233,7 +230,7 @@ void renderLights(int module, int outSetting) {
 	out = (out << 4) + (B1111 & ~spotlLight);
 	out = (out << 2) + (B11 & ~mainLight);
 	out = (out << 8) + (B11111111 & ~dicroLight);
-	houz.setIo(out);
+	houz.setIo(~out);
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,12 +264,12 @@ int dicroOffAnim[] = {
 };
 
 u32 dragonEngage[] = {
-	0x0000, //0
-	0x8000, //1
-	0xC000, //2
-	0xC003, //3
-	0x4003, //4
-	0x3     //5
+	0x6fff,	//0: all + fx 1
+	0x6cff, //1: main off 
+	0x4055, //2: half dicro off
+	0x6c3c, //3: point dicro
+	0x6c00, //4: dicro off
+	0x2000  //5: only spot 4 
 };
 
 
@@ -357,4 +354,8 @@ void animRender() {
 	anim.on = false;
 	anim.step = 0;
 	anim.id = 0;
+
+	//update current status
+	houz.pushData(CMD_SET, living_node, 1);
+
 };

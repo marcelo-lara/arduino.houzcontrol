@@ -285,7 +285,9 @@ bool Houz::radioRead()
 		return false;
 	}
 	console->print(F("rfIn> "));
-	console->println(device.id, HEX);
+	console->print(device.id, HEX);
+	console->print(F(" | "));
+	console->println(device.payload, HEX);
 
 	//handle command
 	pushData(device);
@@ -414,7 +416,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 		break;
 	case action_rfSentOk:
 		statusLedBlink();
-		console->print(F("ok\t\t"));
+		console->print(F("ok\t"));
 		break;
 	}
 	printRadioPacket(packet);
