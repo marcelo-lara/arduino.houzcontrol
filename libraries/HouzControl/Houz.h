@@ -32,10 +32,28 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Declarations
 
+struct Node
+{
+	byte id;
+	RF24 &radio;
+	Stream &serial;
+
+	//shift out
+	u8 dataPin;
+	u8 latchPin; 
+	u8 clockPin;
+
+	//button
+	byte mainSwitch;
+	byte statusLed;
+};
+
 class Houz{
 public:
 	Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial);
-	Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial, u8 dataPin, u8 latchPin, u8 clockPin);
+	Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin);
+	Houz(byte NodeId, RF24 &_radio, byte _statusLed, u8 _inSwitchPin, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin);
+	Houz(Node _node);
 	void setup();
 
 	//commands
@@ -69,11 +87,21 @@ public:
 
 private:
 	HouzDevicesCodec* codec;
-	void init(byte NodeId, RF24 &_radio, byte _statusLed, Stream & serial);
+	void rfSetup(byte NodeId, RF24 &_radio, byte _statusLed, Stream & serial);
+	void ioSetup(u8 dataPin, u8 latchPin, u8 clockPin);
 	Anim statusLedAnim;
 	void statusLedRender();
 	int statusLedLevel;
 
+	//wall button
+	byte inSwitch;
+	void inSwitchSetup();
+	void inSwitchUpdate();
+	bool inSw_lastStatus;
+	unsigned long inSw_lastMs;
+	unsigned long inSw_downMs;
+	
+	int inSwitchCount;
 	//commands
 	QueueArray<deviceData> commandsQueue;
 	void printToHost(byte result, byte node, u32 message);
@@ -91,10 +119,8 @@ private:
 	unsigned long radio_next_packet;
 
 	bool radioRead();
-
 	void radioWrite();
 	void radioWriteResult(byte result, radioPacket packet);
-
 	QueueArray<radioPacket> radioSendQueue;
 	void printRadioPacket(radioPacket packet);
 
@@ -111,3 +137,4 @@ private:
 	word ioStatus;
 	void ioRender();
 };
+

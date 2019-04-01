@@ -36,30 +36,26 @@ HouzDevicesCodec* codec;
 
 bool server_online = false;
 Houz::Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
-	init(NodeId, _radio, _statusLed, serial);
+	rfSetup(NodeId, _radio, _statusLed, serial);
 };
 
 Houz::Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin) {
-	//74HC595 shift register setup
-	ioReady = true;
-	dataPin = _dataPin;
-	latchPin = _latchPin;
-	clockPin = _clockPin;
-	ioStatus = 0;
-	pinMode(latchPin, OUTPUT);
-	pinMode(clockPin, OUTPUT);
-	pinMode(dataPin, OUTPUT);
-	digitalWrite(dataPin, 0);
-	digitalWrite(clockPin, 0);
-	digitalWrite(latchPin, 0);
-	shiftOut(dataPin, clockPin, MSBFIRST, 0);
-	shiftOut(dataPin, clockPin, MSBFIRST, 0);
-	digitalWrite(latchPin, 1);
+	rfSetup(NodeId, _radio, _statusLed, serial);
+	ioSetup(_dataPin, _latchPin, _clockPin);
+};
+Houz::Houz(byte NodeId, RF24 &_radio, byte _statusLed, u8 _inSwitchPin, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin){
+	rfSetup(NodeId, _radio, _statusLed, serial);
+	ioSetup(_dataPin, _latchPin, _clockPin);
+	inSwitch=_inSwitchPin;
+}
 
-	init(NodeId, _radio, _statusLed, serial);
+Houz::Houz(Node _node){
+
 };
 
-void Houz::init(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
+
+// 
+void Houz::rfSetup(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
 	console = &serial;
 	radio = &_radio;
 	node_id = NodeId;
@@ -70,8 +66,10 @@ void Houz::init(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
 
 void Houz::setup() {
 	wdt_enable(WDTO_8S);
+	inSwitchSetup();
 	radioSetup();
 	
+
 	if (node_id == server_node) return;
 
 	console->print(F("-- "));
@@ -93,6 +91,11 @@ bool Houz::hasData() {
 	if (serialRead()) return true;
 
 	//processes
+	//if (radioRead()) return true;
+
+	//inputs
+	inSwitchUpdate();
+
 	statusLedRender();
 	radioWrite();
 	return !commandsQueue.isEmpty();
@@ -184,13 +187,13 @@ void Houz::radioSetup()
 		console->println(radio_status ? F("[online]") : F("[offline]"));
 	}
 	else {
+		console->print(F("rf\t"));
+		console->println(radio_status ? F("online") : F("offline"));
 		console->print(F("device: "));
 		console->print(node_name());
 		console->print(F(" ["));
 		console->print(node_id);
 		console->println(F("]"));
-		console->print(F("status: "));
-		console->println(radio_status ? F("online") : F("offline"));
 		radio->printDetails();
 	}
 	if (radio_status) 
@@ -464,6 +467,24 @@ void Houz::handleCommand(deviceData device){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IO stuff | shifted outputs
+void Houz::ioSetup(u8 _dataPin, u8 _latchPin, u8 _clockPin){
+	ioReady = true;
+	dataPin = _dataPin;
+	latchPin = _latchPin;
+	clockPin = _clockPin;
+	ioStatus = 0;
+	pinMode(latchPin, OUTPUT);
+	pinMode(clockPin, OUTPUT);
+	pinMode(dataPin, OUTPUT);
+	digitalWrite(dataPin, 0);
+	digitalWrite(clockPin, 0);
+	digitalWrite(latchPin, 0);
+	shiftOut(dataPin, clockPin, MSBFIRST, 0);
+	shiftOut(dataPin, clockPin, MSBFIRST, 0);
+	digitalWrite(latchPin, 1);
+	console->print(F("shiftOut\tenabled "));
+
+}
 
 void Houz::setIo(u32 io, bool status) {
 	//set bit
@@ -497,3 +518,59 @@ void Houz::ioRender() {
 word Houz::getIoStatus() {
 	return ioStatus;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// wall switch
+
+void Houz::inSwitchSetup(){
+	if(inSwitch<1) return;
+	pinMode(inSwitch, INPUT_PULLUP);
+	inSw_lastStatus=true;
+	console->println(F("inSwitch\tenabled "));
+}
+
+#define inSwitch_debounce 20
+#define inSwitch_clickInterval 300
+#define inSwitch_pressInterval 1000
+#define inSwitch_timeout 300
+
+void Houz::inSwitchUpdate(){
+	if(inSwitch<1) return; //not enabled
+	unsigned long currMillis = millis();
+	if(inSw_lastMs + inSwitch_debounce > currMillis) return; //debounce
+	bool currStatus = digitalRead(inSwitch)==HIGH; //read status
+	
+	if(!inSw_lastStatus){ 
+		//button is pressed
+		if((currMillis - inSw_lastMs) > inSwitch_pressInterval ){
+			console->print("fire\t");
+			console->print(inSwitchCount);
+			console->print("\t");
+			console->println("+ longclick");
+			inSwitchCount=0;
+			inSw_lastMs=currMillis;
+		}
+	}else{
+		//button isn't pressed
+		if(inSwitchCount>0){
+			if((inSw_lastMs + inSwitch_timeout) < currMillis){
+				console->print("fire\t");
+				console->println(inSwitchCount);
+				inSwitchCount=0;
+			}
+		}
+	}
+	
+	if(inSw_lastStatus==currStatus) return;
+
+	//handle click
+  if(currStatus && (currMillis - inSw_lastMs)<inSwitch_clickInterval) 
+		inSwitchCount++;
+
+	//store action and wait for next
+	inSw_lastStatus=currStatus;
+	inSw_lastMs=currMillis;
+}
+	
+
+

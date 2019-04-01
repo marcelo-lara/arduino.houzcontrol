@@ -51,11 +51,11 @@ bool	dungeonMode = false;
 bool	dungeonChanged = false;
 u32		dungeonPreStatus;
 
-
-Houz houz(living_node, radio, swLight, Serial, ioDataPin, ioLatchPin, ioClockPin);
+Houz houz(living_node, radio, swLight, inSwitch, Serial, ioDataPin, ioLatchPin, ioClockPin);
 
 void setup() {
-	Serial.begin(115200);
+	delay(200); //charge wait
+	Serial.begin(250000);
 	houz.setup();
 
 	//io setup
@@ -69,7 +69,6 @@ void setup() {
 void loop() {
 	if (houz.hasData()) 
 		handleCommand(houz.getData()); 
-	switchRead();
 	infraredRead();
 	animRender();
 }
@@ -77,7 +76,11 @@ void loop() {
 void handleCommand(deviceData device) {
 	switch (device.id){
 
-	case living_node		: //ping node
+	case living_node		: 
+		//TODO: goodbye mode
+		//TODO: handle switch 
+		
+		//ping node
 		Serial.println("status");
 		houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
 		houz.radioSend(CMD_VALUE, living_dicroLight, dicroLight);
@@ -188,24 +191,6 @@ void handleIrCode(unsigned long irCode) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lighting control
-unsigned long switchReadSt = 0;
-void switchRead() {
-	if (switchReadSt > millis()) return; //debounce
-
-	int buttonState;
-	buttonState = digitalRead(inSwitch);
-	if (buttonState == HIGH) return;
-	
-	switchReadSt = millis() + 500;
-	Serial.println("switchRead\thit");
-
-	//handle status
-	houz.pushData(CMD_SET, living_mainLight, 2);
-
-	//notify
-	houz.radioSend(CMD_EVENT, living_switch, 1);
-}
-
 void mainLightToggle(){
 	renderLights(living_mainLight, (mainLight == B11) ? B00 : B11);
 	if (dungeonMode) dungeonChanged = true;
