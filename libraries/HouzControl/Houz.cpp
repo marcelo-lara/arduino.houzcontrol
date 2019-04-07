@@ -1,8 +1,12 @@
 /*
 Author:	DarkAngel
 
+//Node Channel actions
+//00Fxy
+//	x - long click
+//  y - click count
+
 TODO:
-	- notify booting status
 	- keep server-nodes status
 	- scan devices
 */
@@ -86,16 +90,14 @@ void Houz::setup() {
 bool Houz::hasData() {
 	wdt_reset(); //watchdog 
 
+	//inputs
+	inSwitchUpdate();
+
 	//listeners
 	if (radioRead()) return true;
 	if (serialRead()) return true;
 
-	//processes
-	//if (radioRead()) return true;
-
-	//inputs
-	inSwitchUpdate();
-
+	//display actions
 	statusLedRender();
 	radioWrite();
 	return !commandsQueue.isEmpty();
@@ -511,8 +513,8 @@ void Houz::ioRender() {
 	shiftOut(dataPin, clockPin, MSBFIRST, ioStatus);
 	digitalWrite(latchPin, HIGH);
 
-	console->print(F(" | ioRender "));
-	console->println(ioStatus, BIN);
+	// console->print(F(" | ioRender "));
+	// console->println(ioStatus, BIN);
 }
 
 word Houz::getIoStatus() {
@@ -541,21 +543,24 @@ void Houz::inSwitchUpdate(){
 	bool currStatus = digitalRead(inSwitch)==HIGH; //read status
 	
 	if(!inSw_lastStatus){ 
-		//button is pressed
+		//button is pressed > longpress?
 		if((currMillis - inSw_lastMs) > inSwitch_pressInterval ){
-			console->print("fire\t");
-			console->print(inSwitchCount);
-			console->print("\t");
-			console->println("+ longclick");
+			console->print(F("sw\tlongpress\t"));
+			console->println(inSwitchCount);
+
+			pushData(CMD_SET, node_id, 0xA10+inSwitchCount);
 			inSwitchCount=0;
 			inSw_lastMs=currMillis;
 		}
+
 	}else{
-		//button isn't pressed
+		//button isn't pressed > fire click
 		if(inSwitchCount>0){
 			if((inSw_lastMs + inSwitch_timeout) < currMillis){
-				console->print("fire\t");
+				console->print(F("sw\tclick\t"));
 				console->println(inSwitchCount);
+
+				pushData(CMD_SET,node_id,0xA00+inSwitchCount);
 				inSwitchCount=0;
 			}
 		}

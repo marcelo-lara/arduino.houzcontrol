@@ -40,6 +40,11 @@ IRsend irsend;
 #define ioLatchPin	6	//74HC595 ST_CP: pin 12
 #define ioDataPin	7	//74HC595 DS: pin 14
 
+//lighting fx
+#define fx_dicroOn	0x1
+#define fx_dicroOff	0x2
+
+
 //lighting logic   controller outputs
 byte dicroLight;	// ---- ---- XXXX XXXX
 byte mainLight;		// ---- --XX ---- ----
@@ -55,7 +60,7 @@ Houz houz(living_node, radio, swLight, inSwitch, Serial, ioDataPin, ioLatchPin, 
 
 void setup() {
 	delay(200); //charge wait
-	Serial.begin(250000);
+	Serial.begin(115200);
 	houz.setup();
 
 	//io setup
@@ -80,12 +85,64 @@ void handleCommand(deviceData device) {
 		//TODO: goodbye mode
 		//TODO: handle switch 
 		
-		//ping node
-		Serial.println("status");
-		houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
-		houz.radioSend(CMD_VALUE, living_dicroLight, dicroLight);
-		houz.radioSend(CMD_VALUE, living_fxLight, fxLight);
-		houz.radioSend(CMD_VALUE, living_spotLight, spotlLight);
+		switch (device.cmd)
+		{
+			case CMD_SET:
+				Serial.print("cmd: 0x");
+				Serial.println(device.payload,HEX);
+
+				switch (device.payload)
+				{
+					case swSingleClick:
+						//no lights on > turn on main
+						if(dicroLight==0 && mainLight==0){
+							mainLightToggle();
+							return;
+						}
+
+						if(mainLight>0)
+							renderLights(living_mainLight,0);
+						if(dicroLight>0)
+							houz.pushData(CMD_SET, living_fx, fx_dicroOff);	
+
+						return;
+						break;
+
+					case swDoubleClick:
+						houz.pushData(CMD_SET, living_fx, dicroLight>0?fx_dicroOff:fx_dicroOn);
+						return;
+						break;
+
+					case swLongPress:
+						Serial.println("longpress: set goodbye");
+						houz.pushData(CMD_SET, living_node, scene_Goodbye);
+						houz.radioSend(CMD_VALUE, living_node, scene_Goodbye);
+						break;
+				
+					case scene_Goodbye:
+						if(mainLight>0) renderLights(mainLight, 0);
+						if(fxLight>0) renderLights(fxLight, 0);
+						if(spotlLight>0) renderLights(spotlLight, 0);
+						if(dicroLight==0) {
+							
+							return;
+						}
+						houz.pushData(CMD_SET, living_fx, fx_dicroOff);
+
+					default:
+						Serial.print("unknown: 0x");
+						Serial.println(device.payload, HEX);
+						break;
+				}
+				break;		
+			default:
+				Serial.println("query status");
+				houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
+				houz.radioSend(CMD_VALUE, living_dicroLight, dicroLight);
+				houz.radioSend(CMD_VALUE, living_fxLight, fxLight);
+				houz.radioSend(CMD_VALUE, living_spotLight, spotlLight);
+				break;
+		}
 		break;
 
 	case living_rawRender	: // set outputs to payload
@@ -193,6 +250,7 @@ void handleIrCode(unsigned long irCode) {
 // Lighting control
 void mainLightToggle(){
 	renderLights(living_mainLight, (mainLight == B11) ? B00 : B11);
+	houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
 	if (dungeonMode) dungeonChanged = true;
 }
 
@@ -273,9 +331,9 @@ void animSetup(int _anim) {
 	case 0: //clear anim
 		anim.on = false;
 		break;
-	case 0x1: //dicro on
+	case fx_dicroOn: //dicro on
 		break;
-	case 0x2: //dicro off
+	case fx_dicroOff: //dicro off
 		anim.stepInterval = 200;
 		break;
 
@@ -306,19 +364,19 @@ void animRender() {
 	if (millis() < anim.nextStep) return;
 	anim.nextStep = millis() + anim.stepInterval;
 
-	Serial.print("animRender [");
-	Serial.print(anim.step);
-	Serial.print("/");
-	Serial.print(anim.stepCount);
-	Serial.print("] ");
+	// Serial.print("animRender [");
+	// Serial.print(anim.step);
+	// Serial.print("/");
+	// Serial.print(anim.stepCount);
+	// Serial.print("] ");
 
 	//render step
 	switch (anim.id)
 	{
-	case 1: //dicro on
+	case fx_dicroOn: //dicro on
 		renderLights(living_dicroLight, dicroOnAnim[anim.step]);
 		break;
-	case 2: //dicro off
+	case fx_dicroOff: //dicro off
 		renderLights(living_dicroLight, dicroOffAnim[anim.step]);
 		break;
 
@@ -341,6 +399,6 @@ void animRender() {
 	anim.id = 0;
 
 	//update current status
-	houz.pushData(CMD_SET, living_node, 1);
+	houz.pushData(CMD_QUERY, living_node, 0);
 
 };

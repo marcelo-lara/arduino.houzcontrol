@@ -21,6 +21,17 @@
 #define CMD_EVENT			0xD
 #define CMD_STATUS			0xE
 
+// scenes
+#define scene_Goodbye	0xCF0
+#define scene_Sleep		0xCF1
+#define scene_Hello		0xCF2
+
+// sw button
+#define swSingleClick	0xA01
+#define swDoubleClick	0xA02
+#define swLongPress		0xA10
+#define swClickLong		0xA11
+
 // Server Contract //////////////////////////////////////////////////////////////////////////////////////////////////
 #define action_log				0x00
 #define action_rfSentOk			0x01
