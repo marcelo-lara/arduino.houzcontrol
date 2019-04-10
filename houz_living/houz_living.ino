@@ -62,6 +62,7 @@ void setup() {
 	delay(200); //charge wait
 	Serial.begin(115200);
 	houz.setup();
+	houz.inSwitchSetup(inSwitch);
 
 	//io setup
 	pinMode(inSwitch, INPUT_PULLUP);

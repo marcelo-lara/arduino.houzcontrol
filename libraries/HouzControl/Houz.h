@@ -66,6 +66,7 @@ public:
 	Houz(byte NodeId, RF24 &_radio, byte _statusLed, u8 _inSwitchPin, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin);
 	Houz(Node _node);
 	void setup();
+	void inSwitchSetup(int _inSwitchPin);
 
 	//commands
 	bool hasData();
@@ -106,7 +107,6 @@ private:
 
 	//wall button
 	byte inSwitch;
-	void inSwitchSetup();
 	void inSwitchUpdate();
 	bool inSw_lastStatus;
 	unsigned long inSw_lastMs;
