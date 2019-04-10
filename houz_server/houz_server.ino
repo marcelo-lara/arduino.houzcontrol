@@ -8,11 +8,11 @@
 
 // radio setup //////////////////////////////////////////////////////////////
 //wiring: D8>CS | D9>CE | (sck)D13>5 | (mosi)D11>6 | (miso)D12>7
-#define rfRecvLed 10 //RF online Led
+#define statusLed 10 //status led
 #define rfCE 9   //RF pin 3 (CE)
-#define rfCS 8  //RF pin 4 (CS)
-RF24 radio(rfCE, rfCS);
-Houz houz(server_node, radio, rfRecvLed, Serial);
+#define rfCSN 8  //RF pin 4 (CSN)
+RF24 radio(rfCE, rfCSN);
+Houz houz(server_node, radio, statusLed, Serial);
 
 void setup() {
 	Serial.begin(115200);
