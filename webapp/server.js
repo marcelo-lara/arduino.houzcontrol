@@ -14,9 +14,6 @@ const Server = http.createServer(app)
 const io = require('socket.io').listen(Server)
 app.use(express.static(__dirname + '/public'))
 
-const fa = require("fontawesome");
-console.log(fa("fort-awesome") + " Hello World!"); // Hello World!
-
 // debug
 serial.list((err, ports)=>{
   console.log('--SERIAL--');
@@ -43,18 +40,22 @@ parser.on('data', data => {
 
 // clients handling
 io.on('connection', socket => {
-  console.log('io ', socket.id,'| connected',);
+  console.log('io.connect | ', socket.id);
 
   socket.on('disconnect', socket=>{
-    console.log('io ', socket.id,'| disconnected',);
+    console.log('io.disconnect | ', socket.id);
   });  
 
   socket.on('command', data=>{
     console.log('io.cmd | ', socket.id,'>',data);
 
     const pkt = houzcontrol.encodePacket(data);
-    if(pkt)
-      serialPort.write(pkt+"\n")
+
+    if(pkt){
+      console.log('<- ',pkt);
+      serialPort.write(pkt+"\n");
+    }
+      
   });
 
   // deliver device list to client

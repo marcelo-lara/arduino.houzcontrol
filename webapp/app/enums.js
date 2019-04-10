@@ -15,7 +15,7 @@ module.exports = {
         fxanim: 12
     },
     actEnm: {
-        action_log			: 0x00,
+        action_ack      	: 0x00,
         action_rfSentOk		: 0x01,
         action_rfSentRetry	: 0x02,
         action_rfSentFail	: 0x03,

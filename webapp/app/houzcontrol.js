@@ -10,7 +10,6 @@ module.exports = {
 
         let matches = data.match(/\[(.{6,11})\]/);
         if (!matches) {
-            console.log('--houz.parse ERR |', data);
             return;
         }
         const _rawdev = matches[1];
@@ -25,11 +24,7 @@ module.exports = {
         const _act = parseInt(_rawdev.substring(0, 1), 16);
 
         // debug
-        // console.log('\t--', module.exports.actToStr(_act));
-        // console.log('\tnode\t', _node);
-        // console.log('\tdev\t', _dev, parseInt(_dev, 16));
-        // console.log('\tcmd\t', _cmd);
-        // console.log('\tpayload\t', _payload);
+        console.log('::', enm.toStr(_act, enm.actEnm));
 
         if (_act !== enm.actEnm.action_rfReceived) return; //udpate only on rfReceived
         const _node = parseInt(_rawdev.substring(2, 3), 16);
@@ -44,7 +39,7 @@ module.exports = {
         const dev = module.exports.devices.find(x => x.id === _id);
         if (!dev) { console.log('\tdevice not found??\t', _id); return; };
         
-        console.log(dev.name)
+        console.log("\t", dev.name)
         switch (dev.type) {
             case enm.typeEnm.node:
                 dev.iVal = payload; //store status
@@ -74,7 +69,7 @@ module.exports = {
                 console.log("\thumidity:", dev.fVal, "%");
                 break;
             case enm.typeEnm.pressure:
-                dev.fVal = (payload / 100) + 850;
+                dev.fVal = (payload / 100) + 900;
                 console.log("\tpressure:", dev.fVal, "hPa");
                 break;
 
@@ -96,7 +91,6 @@ module.exports = {
     },
     encodePacket: (_raw) => {
         if (!_raw.id) { console.log('\tencodePacket: ERR id not defined .. abort'); return; }
-        console.log('--encodePacket |', _raw);
 
         //set target device
         const dev = module.exports.devices.find(x => x.id == _raw.id)
@@ -111,8 +105,6 @@ module.exports = {
         pkt += toHex(cmd, 1);
         pkt += toHex(dev.id, 2);
         pkt += toHex(payload, 4);
-        console.log('\tpacket |', pkt);
-
         return pkt;
     },
 
