@@ -144,7 +144,7 @@ void Houz::statusLedVoid() {
 int statusLedLevel = 0;
 void Houz::statusLedRender() {
 	if (!statusLedAnim.on || statusLedAnim.nextStep > millis()) return;
-	statusLedAnim.nextStep = millis() + 50;
+	statusLedAnim.nextStep = millis() + 10;
 
 	//step
 	switch (statusLedAnim.id)
@@ -172,7 +172,7 @@ void Houz::radioSetup()
 	//setup rf24 module
 	printf_begin();
 	radio->begin();
-	radio->setPALevel(RF24_PA_MAX); //RF24_PA_HIGH | RF24_PA_LOW
+	radio->setPALevel(RF24_PA_LOW); //RF24_PA_HIGH | RF24_PA_LOW | RF24_PA_MAX
 	radio->setDataRate(RF24_1MBPS);
 	radio->enableDynamicAck();
 	radio->setCRCLength(RF24_CRC_8);
@@ -186,12 +186,11 @@ void Houz::radioSetup()
 	radio_status = (rfChannel == radio->getChannel()); //test if radio is enabled
 
 	if (node_id == server_node) {
-		console->println(radio_status ? F("[online]") : F("[offline]"));
-	}
-	else {
+	 	console->println(radio_status ? F("[online]") : F("[offline]"));
+	} else {
 		console->print(F("rf\t"));
 		console->println(radio_status ? F("online") : F("offline"));
-		console->print(F("device: "));
+		console->print(F("node: "));
 		console->print(node_name());
 		console->print(F(" ["));
 		console->print(node_id);
@@ -286,13 +285,13 @@ bool Houz::radioRead()
 	//handle pong back command
 	if (device.hasData && device.id == node_id && device.cmd == CMD_STATUS) {
 		radioSend(CMD_STATUS, device.id, (0xFFFF) & ~device.payload);
-		console->println(F("\tpong\tback"));
+		//console->println(F("\tpong\tback"));
 		return false;
 	}
-	console->print(F("rfIn> "));
-	console->print(device.id, HEX);
-	console->print(F(" | "));
-	console->println(device.payload, HEX);
+	//console->print(F("rfIn> "));
+	//console->print(device.id, HEX);
+	//console->print(F(" | "));
+	//console->println(device.payload, HEX);
 
 	//handle command
 	pushData(device);
@@ -315,6 +314,10 @@ bool Houz::radioSend(Weather weather){
 		if(weather.online){
 			radioSend(CMD_VALUE, suite_temp, weather.temp*100);
 			radioSend(CMD_VALUE, suite_humidity, weather.hum*100);
+
+				//console->print(F("pressure\t"));
+				//console->println(weather.pressure);
+
 			radioSend(CMD_VALUE, suite_pressure, codec->pressureEncode(weather.pressure));
 		}
 	}
@@ -324,7 +327,7 @@ bool Houz::radioSend(Weather weather){
 bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) {
 	if (!radio_status) return false;
 	if (!server_online) 
-		if (!radioSendQueue.isEmpty()) return false;
+	if (!radioSendQueue.isEmpty()) return false;
 	if (radioSendQueue.count() > 9) return false;
 
 	//enqueue send
@@ -335,16 +338,16 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) 
 	radioSendQueue.enqueue(packet);
 	if (node_id == server_node) return true;
 
-	console->print(F("\trfSnd\tpush\t"));
+	//console->print(F("rfPush\t"));
 	printRadioPacket(packet);
-	console->println();
+	//console->println();
 	return true;
 };
 
 void Houz::printRadioPacket(radioPacket packet) {
-	console->print(F("N"));
-	console->print(packet.node, HEX);
-	console->print(packet.message, HEX);
+	//console->print(F("N"));
+	//console->print(packet.node, HEX);
+	//console->print(packet.message, HEX);
 };
 
 void Houz::radioWrite() {
@@ -408,24 +411,24 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 	}
 
 	//hosts
-	console->print(F("\trfWrt\t"));
+	//console->print(F("\trfWrt\t"));
 	switch (result)
 	{
 	case action_rfSentFail: 
 		statusLedVoid();
-		console->print(F("drop\t"));
+		//console->print(F("drop\t"));
 		break;
 	case action_rfSentRetry: 
-		console->print(packet.retries);
-		console->print(F(" retry\t"));
+		//console->print(packet.retries);
+		//console->print(F(" retry\t"));
 		break;
 	case action_rfSentOk:
 		statusLedBlink();
-		console->print(F("ok\t"));
+		//console->print(F("ok\t"));
 		break;
 	}
 	printRadioPacket(packet);
-	console->println();
+	//console->println();
 
 };
 
@@ -435,28 +438,31 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 bool Houz::serialRead(){
   while (console->available() > 0) {
     int inChar = console->read();
-	//console->print((char)inChar);
-	if (inChar == '\n' || (char)inChar == '\\') {
-		handleCommand(codec->decode(serialBuffer));
-	}else{
-		serialBuffer += (char)inChar;
-	}
+		if (inChar == '\n' || (char)inChar == '\\') {
+			handleCommand(codec->decode(serialBuffer));
+		}else{
+			serialBuffer += (char)inChar;
+			if(serialBuffer.length()>16) serialBuffer="";
+		}
   }
   return false;
 }
 
 void Houz::handleCommand(deviceData device){
-	if (!device.hasData) device.message = serialBuffer;
+	device.message = serialBuffer;
 	serialBuffer = "";
 
 	//ping response
-	if (device.id == node_id && device.cmd == CMD_QUERY) {
-		console->println(radio_status ? F("[online]") : F("[offline]"));
-		return;
-	}
+	// if (device.id == node_id && device.cmd == CMD_QUERY) {
+	// 	console->println(radio_status ? F("[online]") : F("[offline]"));
+	// 	return;
+	// }
 
 	if (node_id == server_node) {
 		//server node handling
+		console->print(F("[0"));
+		console->print(device.message);
+		console->println(F("]"));
 		if (device.hasData) radioSend(device);
 	}
 	else {
@@ -484,7 +490,7 @@ void Houz::ioSetup(u8 _dataPin, u8 _latchPin, u8 _clockPin){
 	shiftOut(dataPin, clockPin, MSBFIRST, 0);
 	shiftOut(dataPin, clockPin, MSBFIRST, 0);
 	digitalWrite(latchPin, 1);
-	console->print(F("shiftOut\tenabled "));
+	//console->print(F("shiftOut\tenabled "));
 
 }
 
@@ -513,8 +519,8 @@ void Houz::ioRender() {
 	shiftOut(dataPin, clockPin, MSBFIRST, ioStatus);
 	digitalWrite(latchPin, HIGH);
 
-	// console->print(F(" | ioRender "));
-	// console->println(ioStatus, BIN);
+	//console->print(F(" | ioRender "));
+	//console->println(ioStatus, BIN);
 }
 
 word Houz::getIoStatus() {
@@ -528,7 +534,7 @@ void Houz::inSwitchSetup(){
 	if(inSwitch<1) return;
 	pinMode(inSwitch, INPUT_PULLUP);
 	inSw_lastStatus=true;
-	console->println(F("inSwitch\tenabled "));
+	//console->println(F("inSwitch\tenabled "));
 }
 
 #define inSwitch_debounce 20
@@ -545,8 +551,8 @@ void Houz::inSwitchUpdate(){
 	if(!inSw_lastStatus){ 
 		//button is pressed > longpress?
 		if((currMillis - inSw_lastMs) > inSwitch_pressInterval ){
-			console->print(F("sw\tlongpress\t"));
-			console->println(inSwitchCount);
+			//console->print(F("sw\tlongpress\t"));
+			//console->println(inSwitchCount);
 
 			pushData(CMD_SET, node_id, 0xA10+inSwitchCount);
 			inSwitchCount=0;
@@ -557,8 +563,8 @@ void Houz::inSwitchUpdate(){
 		//button isn't pressed > fire click
 		if(inSwitchCount>0){
 			if((inSw_lastMs + inSwitch_timeout) < currMillis){
-				console->print(F("sw\tclick\t"));
-				console->println(inSwitchCount);
+				//console->print(F("sw\tclick\t"));
+				//console->println(inSwitchCount);
 
 				pushData(CMD_SET,node_id,0xA00+inSwitchCount);
 				inSwitchCount=0;
@@ -569,7 +575,9 @@ void Houz::inSwitchUpdate(){
 	if(inSw_lastStatus==currStatus) return;
 
 	//handle click
-  if(currStatus && (currMillis - inSw_lastMs)<inSwitch_clickInterval) 
+  if(currStatus 
+			&& (currMillis - inSw_lastMs)>50 //ignore noise 
+			&& (currMillis - inSw_lastMs)<inSwitch_clickInterval) 
 		inSwitchCount++;
 
 	//store action and wait for next

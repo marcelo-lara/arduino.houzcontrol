@@ -45,11 +45,13 @@ deviceData HouzDevicesCodec::decode(String str) { //from serial
 //////////////////////////////////////////////////////
 // Pressure patch
 u32 HouzDevicesCodec::pressureEncode(float devicePayload){
-  return (devicePayload-850)*100; //800hPa offset
+	u32 ret = (devicePayload-900)*100; //900hPa offset
+  if(ret>0xFFFF) ret=0xFFFF;
+	return ret;
 }
 
 float HouzDevicesCodec::pressureDecode(u32 devicePayload){
-  return (devicePayload/100)+850; //800hPa offset
+  return (devicePayload/100)+900; //900hPa offset
 }
 
 

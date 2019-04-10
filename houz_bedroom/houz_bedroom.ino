@@ -80,7 +80,7 @@ void handleCommand(deviceData device) {
 
  // AC control
  	case suite_AC:
-		Serial.println("--AC");
+		//Serial.println("--AC");
 		if (device.cmd == CMD_SET) setAC(device.payload);
     houz.radioSend(CMD_EVENT, suite_AC, getAC());
 		break;
@@ -103,7 +103,7 @@ void handleCommand(deviceData device) {
     break;
 
 	default:		  
-		Serial.println("wtf? " + device.raw);
+		//Serial.println("wtf? " + device.raw);
 		break;
 	}	  
 };
@@ -195,10 +195,10 @@ int getFanSpeed(){
 int acStatus = 0;
 void setAC(int state){
 	if(state=1) state=24;
-	Serial.print("AC\t");
-	Serial.print(state>0?"on":"off"); 
-	Serial.print("\t");
-	Serial.println(state);
+	//Serial.print("AC\t");
+	//Serial.print(state>0?"on":"off"); 
+	//Serial.print("\t");
+	//Serial.println(state);
 	irsend.sendLG(state>0?acBghPowerOn:acBghPowerOff, 28);
 	acStatus=state;
 }

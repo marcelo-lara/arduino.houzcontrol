@@ -33,7 +33,7 @@
 #define swClickLong		0xA11
 
 // Server Contract //////////////////////////////////////////////////////////////////////////////////////////////////
-#define action_log				0x00
+#define action_ack				0x00
 #define action_rfSentOk			0x01
 #define action_rfSentRetry		0x02
 #define action_rfSentFail		0x03
