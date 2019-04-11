@@ -28,10 +28,10 @@ TODO:
 #define rf_living_tx	0xA3
 #define rf_living_rx	0xB3
 
-#define rf_led_low		0x33
-#define rf_led_idle		0x66
-#define rf_led_high		0x99
-#define rf_led_max		0xFF
+#define statusled_low	0x33
+#define statusled_idle	0x66
+#define statusled_high	0x99
+#define statusled_max	0xFF
 
 #define anim_blink		0x1
 #define anim_void			0x0
@@ -65,7 +65,7 @@ void Houz::rfSetup(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
 	node_id = NodeId;
 	statusLed = _statusLed;
 	pinMode(statusLed, OUTPUT);
-	analogWrite(statusLed, rf_led_low);
+	analogWrite(statusLed, 0);
 }
 
 void Houz::setup() {
@@ -130,34 +130,24 @@ void Houz::printToHost(byte result, byte node, u32 message){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Helpers 
+#define statusLedBlinkTime 120
+bool statusLedSkip = true;
+unsigned long statusLedStep;
 void Houz::statusLedBlink() {
-	statusLedAnim.id = anim_blink;
-	statusLedAnim.on = true;
-	statusLedLevel = 0x66;
+	analogWrite(statusLed, statusled_max);
+	statusLedStep=millis() + statusLedBlinkTime;
+	statusLedSkip=false;
 };
 void Houz::statusLedVoid() {
-	statusLedAnim.id = anim_void;
-	statusLedAnim.on = true;
-	statusLedLevel = 0x66;
+	analogWrite(statusLed, statusled_low);
+	statusLedStep=millis() + statusLedBlinkTime;
+	statusLedSkip=false;
 };
-int statusLedLevel = 0;
 void Houz::statusLedRender() {
-	if (!statusLedAnim.on || statusLedAnim.nextStep > millis()) return;
-	statusLedAnim.nextStep = millis() + 10;
-
-	//step
-	switch (statusLedAnim.id)
-	{
-		case anim_blink:
-			statusLedLevel+=0xF;
-			statusLedAnim.on = statusLedLevel<0xFF;
-			break;
-		case anim_void:
-			statusLedLevel-=0xF;
-			statusLedAnim.on = statusLedLevel>0;
-			break;
-	}
-	analogWrite(statusLed, statusLedAnim.on?statusLedLevel:(radio_status?rf_led_idle:rf_led_low));
+	if(statusLedSkip) return;
+	if(statusLedStep > millis()) return;
+	statusLedSkip=true;
+	analogWrite(statusLed, node_id==server_node?0:statusled_idle);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +156,7 @@ void Houz::radioSetup()
 {
 	radio_status = 0;
 	pinMode(statusLed, OUTPUT);
-	analogWrite(statusLed, rf_led_low);
+	analogWrite(statusLed, 0);
 
 	//setup rf24 module
 	printf_begin();
@@ -395,7 +385,7 @@ void Houz::radioWrite() {
 	};
 
 	radio->startListening();
-	radio_next_packet = millis() + 200;
+	radio_next_packet = millis() + 100;
 }
 void Houz::radioWriteResult(byte result, radioPacket packet) {
 	

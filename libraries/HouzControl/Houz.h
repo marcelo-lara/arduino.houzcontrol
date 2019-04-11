@@ -101,9 +101,7 @@ private:
 	HouzDevicesCodec* codec;
 	void rfSetup(byte NodeId, RF24 &_radio, byte _statusLed, Stream & serial);
 	void ioSetup(u8 dataPin, u8 latchPin, u8 clockPin);
-	Anim statusLedAnim;
 	void statusLedRender();
-	int statusLedLevel;
 
 	//wall button
 	byte inSwitch;
