@@ -43,28 +43,11 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Declarations
 
-struct Node
-{
-	byte id;
-	RF24 &radio;
-	Stream &serial;
-
-	//shift out
-	u8 dataPin;
-	u8 latchPin; 
-	u8 clockPin;
-
-	//button
-	byte mainSwitch;
-	byte statusLed;
-};
-
 class Houz{
 public:
 	Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial);
 	Houz(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin);
 	Houz(byte NodeId, RF24 &_radio, byte _statusLed, u8 _inSwitchPin, Stream &serial, u8 _dataPin, u8 _latchPin, u8 _clockPin);
-	Houz(Node _node);
 	void setup();
 	void inSwitchSetup(int _inSwitchPin);
 

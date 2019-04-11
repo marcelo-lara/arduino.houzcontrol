@@ -33,9 +33,6 @@ TODO:
 #define statusled_high	0x99
 #define statusled_max	0xFF
 
-#define anim_blink		0x1
-#define anim_void			0x0
-
 HouzDevicesCodec* codec;
 
 bool server_online = false;
@@ -52,11 +49,6 @@ Houz::Houz(byte NodeId, RF24 &_radio, byte _statusLed, u8 _inSwitchPin, Stream &
 	ioSetup(_dataPin, _latchPin, _clockPin);
 	inSwitch=_inSwitchPin;
 }
-
-Houz::Houz(Node _node){
-
-};
-
 
 // 
 void Houz::rfSetup(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
