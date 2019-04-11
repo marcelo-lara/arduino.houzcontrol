@@ -49,11 +49,11 @@ void setup() {
 	houz.setup();
 
   //main light
-	pinMode(inSwitch, INPUT_PULLUP);
 	pinMode(mainLight, OUTPUT);
 	digitalWrite(mainLight,1); //off on restart
 
   //io setup
+	houz.inSwitchSetup(inSwitch);
 	houz.setIo(0);
 
   //ir setup
@@ -63,7 +63,6 @@ void setup() {
 
 void loop() {
 	if (houz.hasData()) {handleCommand(houz.getData());}
-	switchRead();
 	infraredRead();
 }
 
@@ -72,15 +71,41 @@ void handleCommand(deviceData device) {
 
 // node status
 	case suite_node:
-		houz.radioSend(houzWeather.getWeather());
-    houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
-    houz.radioSend(CMD_EVENT, suite_AC, getAC());
-    houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
+		switch (device.cmd)
+		{
+			case CMD_QUERY:
+				houz.radioSend(houzWeather.getWeather());
+				houz.radioSend(CMD_EVENT, suite_light, getMainLight()?1:0);
+				houz.radioSend(CMD_EVENT, suite_AC, getAC());
+				houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
+				break;
+			case CMD_SET:
+				switch (device.payload)
+				{
+					//wall switch
+					case swSingleClick:
+						houz.pushData(CMD_SET, suite_light, 2);
+						break;
+					case swLongPress:
+						houz.pushData(CMD_SET, suite_node, scene_Sleep);
+						houz.radioSend(CMD_SET, server_node, scene_Sleep);
+						break;
+
+					//scene handling
+					case scene_Sleep:
+						houz.pushData(CMD_SET, suite_light, 0);
+						break;
+					case scene_Goodbye:
+						houz.pushData(CMD_SET, suite_light, 0);
+						houz.pushData(CMD_SET, suite_fan, 0);
+						houz.pushData(CMD_SET, suite_AC, 0);
+						break;
+				}		
+		}
 		break;
 
  // AC control
  	case suite_AC:
-		//Serial.println("--AC");
 		if (device.cmd == CMD_SET) setAC(device.payload);
     houz.radioSend(CMD_EVENT, suite_AC, getAC());
 		break;
@@ -121,7 +146,7 @@ void handleIrCode(unsigned long irCode) {
 	switch (irCode)	{
 
 	//turn light on
-	case sonyIrDvrSelect:	houz.pushData(CMD_SET, suite_light, 2); break;
+	case sonyIrDvrCenter:	houz.pushData(CMD_SET, suite_light, 2); break;
 
 	//fan control
 	case sonyIrDvr1: houz.pushData(CMD_SET, suite_fan, 1); break;
@@ -131,7 +156,7 @@ void handleIrCode(unsigned long irCode) {
 	case sonyIrDvr0: houz.pushData(CMD_SET, suite_fan, 0); break;
 
 	//push enviroment
-  case sonyIrDvrEnter:houz.pushData(CMD_QUERY, suite_enviroment, 0); break;
+  case sonyIrDvrUp:houz.pushData(CMD_QUERY, suite_enviroment, 0); break;
 
 	//AC
 	case sonyIrDvrA: houz.pushData(CMD_SET, suite_AC, 24); break;
@@ -145,18 +170,6 @@ void handleIrCode(unsigned long irCode) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Lighting control
-unsigned long switchReadSt = 0;
-void switchRead() {
-	if (switchReadSt > millis()) return; //debounce
-	int buttonState;
-	buttonState = digitalRead(inSwitch);
-	if (buttonState == HIGH) return;
-	switchReadSt = millis() + 500;
-
-	//handle status
-	houz.pushData(CMD_SET, suite_light, 2);
-}
-
 void setMainLight(int state){ //todo: check this..
   if(state>1) state=!digitalRead(mainLight)==0?1:0;
   digitalWrite(mainLight, state==1?0:1);
@@ -195,10 +208,6 @@ int getFanSpeed(){
 int acStatus = 0;
 void setAC(int state){
 	if(state=1) state=24;
-	//Serial.print("AC\t");
-	//Serial.print(state>0?"on":"off"); 
-	//Serial.print("\t");
-	//Serial.println(state);
 	irsend.sendLG(state>0?acBghPowerOn:acBghPowerOff, 28);
 	acStatus=state;
 }

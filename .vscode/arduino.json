@@ -1,7 +1,7 @@
 {
     "board": "arduino:avr:uno",
-    "port": "COM7",
+    "port": "COM3",
     "output": "../build",
-    "sketch": "houz_living\\houz_living.ino",
+    "sketch": "houz_bedroom\\houz_bedroom.ino",
     "programmer": "AVRISP mkII"
 }
