@@ -162,6 +162,9 @@ void handleIrCode(unsigned long irCode) {
 	case sonyIrDvrA: houz.pushData(CMD_SET, suite_AC, 24); break;
 	case sonyIrDvrB: houz.pushData(CMD_SET, suite_AC, 0); break;
 
+	//scenes
+	case sonyIrPause: houz.pushData(CMD_SET, suite_node, scene_Sleep);
+
 	//unknown code
   default:
 		break;

@@ -77,4 +77,6 @@
 #define sonyIrDvrDown   0x8498D20   //dvr: joystick down
 #define sonyIrDvrCenter 0xFF862D8A  //dvr: joystick enter
 
+#define sonyIrPause     0x847B8D99
+
 
