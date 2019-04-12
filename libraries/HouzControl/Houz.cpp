@@ -302,7 +302,7 @@ bool Houz::radioSend(Weather weather){
 
 bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) {
 	if (!radio_status) return false;
-	if (!server_online) 
+	//if (!server_online) return false; //TODO: handle server status
 	if (!radioSendQueue.isEmpty()) return false;
 	if (radioSendQueue.count() > 9) return false;
 
@@ -430,7 +430,7 @@ void Houz::handleCommand(deviceData device){
 	serialBuffer = "";
 
 	if (node_id == server_node) {
-		//server node handling
+		//server node
 		console->print(F("[0"));
 		console->print(device.message);
 		console->println(F("]"));
