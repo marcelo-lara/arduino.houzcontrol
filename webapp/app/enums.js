@@ -20,6 +20,7 @@ module.exports = {
         action_rfSentRetry	: 0x02,
         action_rfSentFail	: 0x03,
         action_rfReceived	: 0x04,
+        action_conn     	: 0x05,
         action_irReceived	: 0x10
     },
     cmdEnm: {

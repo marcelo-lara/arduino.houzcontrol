@@ -5,6 +5,13 @@ div.row{display: flex; flex-direction: row;}
 div.row>div{flex:1;}
 h2 {margin:0; padding: 5pt;color: #ccc;}
 
+/* server status */
+.server{display: flex;flex-direction: row}
+
+.server>div:first-child{flex: auto}
+.server>div.status{width: 40pt;display: flex;flex-direction: row;}
+.server>div.status>div{flex: auto;background-color: #444;margin: 2pt;width: 10pt;}
+
 /*// devices //////////////////////////////////////////////////////////////////////////// */
 .b1 {flex: 0 0 100pt;width: 100pt;height: 100pt;margin:1pt;cursor: pointer;}
 .b2 {flex: 0 0 50pt;width: 50pt;height: 50pt;margin:1pt;cursor: pointer;}

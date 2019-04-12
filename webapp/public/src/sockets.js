@@ -12,6 +12,8 @@ socket.on('data', data => {
   if(data.devices) devices=data.devices;
   if(data.typeEnm) typeEnm=data.typeEnm;
   if(data.cmdEnm) cmdEnm=data.cmdEnm;
+  if(data.actEnm) actEnm=data.actEnm;
+  
   deviceHandler.reload();
 });
 

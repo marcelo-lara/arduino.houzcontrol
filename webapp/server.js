@@ -15,27 +15,29 @@ const io = require('socket.io').listen(Server)
 app.use(express.static(__dirname + '/public'))
 
 // debug
+
 serial.list((err, ports)=>{
   console.log('--SERIAL--');
-  ports.forEach(port=>{
-    console.log('>', port);
-  });
+  console.log('>', ports[0]);
 });
 
 
 // serial port connection
-const serialPort = new serial(portName, {baudRate: 115200});
+const serialPort = new serial(portName, {baudRate: 115200}, err=>{
+  console.log('..Serial Port Error!!', err);
+});
 const parser = new sp_readline()
 
 serialPort.pipe(parser);
 serialPort.on('open', () => {
   console.log('..Serial Port Opened')
+
 })
 
 parser.on('data', data => {
-  let dev = houzcontrol.parse(data, serialPort);
-  if(dev)  
-    io.emit('update', dev)
+  let pkt = houzcontrol.parse(data, serialPort);
+  if(pkt)  
+    io.emit('update', pkt)
 });
 
 // clients handling
@@ -48,25 +50,25 @@ io.on('connection', socket => {
 
   socket.on('command', data=>{
     console.log('io.cmd | ', socket.id,'>',data);
-
     const pkt = houzcontrol.encodePacket(data);
-
     if(pkt){
       console.log('<- ',pkt);
-      serialPort.write(pkt+"\n");
+      serialPort.write(pkt+"\n", err=>{  
+        console.log('..Serial Port Error!!', err);
+    });
     }
-      
   });
 
   // deliver device list to client
   socket.emit('data', {
     'devices': houzcontrol.devices,
     'typeEnm': enums.typeEnm,
-    'cmdEnm': enums.cmdEnm
+    'cmdEnm': enums.cmdEnm,
+    'actEnm': enums.actEnm
   });
 });
 
 Server.listen(port, () => {
-  console.log(`Express server started on ${port}`)
+  console.log(`Server started on ${port}`)
 })
 

@@ -1,6 +1,7 @@
 let devices = [];
 let typeEnm = [];
 let cmdEnm = [];
+let atcEnm = [];
 
 const deviceHandler = {
   reload: ()=>{
@@ -9,19 +10,29 @@ const deviceHandler = {
       devices.forEach(ui.bind); 
   },
   update: (_upd)=>{
-    let dev=devices.find(x=>x.id==_upd.id);
+    console.log(_upd);
+    ui.status(_upd.type);
+    if(!_upd.dev) return;
+    let dev=devices.find(x=>x.id==_upd.dev.id);
     //test device
     if(!dev){
       console.log('update device| ERR: not found',_upd);
       return;
     }
-    dev=_upd;
-    ui.update(dev);
+    ui.update(_upd.dev);
   }
 };
 
 const ui = {
   binded: false,
+
+  status: stat=>{
+    switch(stat){
+      case actEnm.action_ack:
+        
+      break;
+    }
+  },
 
   update: dev=>{
     const target=ui.getDevElem(dev.id);
@@ -94,6 +105,11 @@ const ui = {
       console.log('ui.bind | element not found',dev);
       return;
     }
+    if(elem.getAttribute("bind")!=null){
+      console.log('ui.bind | already binded..',dev);
+      return;
+    }
+    elem.setAttribute("bind", "1")
     
     // bind wheater //////////////////////////////////////////////
     if(elem.classList.contains("weather")){

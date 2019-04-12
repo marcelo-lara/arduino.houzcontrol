@@ -16,22 +16,24 @@ module.exports = {
 
         //server status
         if (_rawdev === 'online')
-            return module.exports.updateDevice(0, 1, enm.cmdEnm.CMD_VALUE);
+            return {act: enm.actEnm.action_conn, dev: module.exports.updateDevice(0, 1, enm.cmdEnm.CMD_VALUE)};
         if (_rawdev === 'offline')
-            return module.exports.updateDevice(0, 0, enm.cmdEnm.CMD_VALUE);
+            return {act: enm.actEnm.action_conn, dev: module.exports.updateDevice(0, 1, enm.cmdEnm.CMD_VALUE)};
 
         //split packet
         const _act = parseInt(_rawdev.substring(0, 1), 16);
+        let updatePacket = {act: _act, dev: undefined};
 
         // debug
         console.log('::', enm.toStr(_act, enm.actEnm));
-
-        if (_act !== enm.actEnm.action_rfReceived) return; //udpate only on rfReceived
+        
+        if (_act !== enm.actEnm.action_rfReceived) return updatePacket; //udpate only on rfReceived
         const _node = parseInt(_rawdev.substring(2, 3), 16);
         const _cmd = parseInt(_rawdev.substring(4, 5), 16);
         const _dev = parseInt(_rawdev.substring(5, 7), 16);
         const _payload = parseInt(_rawdev.substring(7, 11), 16);
-        return module.exports.updateDevice(_dev, _payload, _cmd, _serial);
+        updatePacket.dev = module.exports.updateDevice(_dev, _payload, _cmd, _serial);
+        return updatePacket;
     },
 
     //update device
@@ -39,14 +41,14 @@ module.exports = {
         const dev = module.exports.devices.find(x => x.id === _id);
         if (!dev) { console.log('\tdevice not found??\t', _id); return; };
         
-        console.log("\t", dev.name)
+        console.log("\t"+ dev.name)
         switch (dev.type) {
             case enm.typeEnm.node:
                 dev.iVal = payload; //store status
 
                 //handle announce
                 if (dev.id === 0 || cmd != enm.cmdEnm.CMD_STATUS) return;
-                console.log("\t> announce..");
+                console.log("\t> node announce..");
                 _serial.write("N" + toHex(dev.node, 1) + "DA0" + toHex(dev.node, 1) + "0000\n");
                 break;
 
@@ -109,7 +111,7 @@ module.exports = {
     },
 
     devices: [
-        { id: 0x00, name: 'server_node', type: enm.typeEnm.node, fVal: 0, iVal: 0 },
+        {id: 0x00, name: 'server_node', type: enm.typeEnm.node, fVal: 0, iVal: 0, status: -1},
 
         // Office
         {name: 'office_node',       id:  0x1, type: enm.typeEnm.node, node: 1}, //N1DC04F0F0
