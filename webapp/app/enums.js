@@ -30,6 +30,11 @@ module.exports = {
         CMD_EVENT   :0xD,
         CMD_STATUS  :0xE
     },
+    statusEnm: {
+        st_down     :-1,
+        st_offline  :0,
+        st_online   :1
+    },
     
     //enum to string helper
     toStr: (val, enm)=>{

@@ -9,8 +9,22 @@ h2 {margin:0; padding: 5pt;color: #ccc;}
 .server{display: flex;flex-direction: row}
 
 .server>div:first-child{flex: auto}
-.server>div.status{width: 40pt;display: flex;flex-direction: row;}
+.server>div.status{width: 30pt;    height: 10pt;
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #000000a6;}
 .server>div.status>div{flex: auto;background-color: #444;margin: 2pt;width: 10pt;}
+
+.err {background-color: #F00 !important;}
+.online {background-color: #060 !important;}
+.offline {background-color: #600 !important;}
+.ack {background-color: #0F0 !important}
+.rfRetry  {background-color: #FF0 !important}
+.rfOk  {background-color: #0F0 !important}
+.rfFail  {background-color: #F00 !important}
 
 /*// devices //////////////////////////////////////////////////////////////////////////// */
 .b1 {flex: 0 0 100pt;width: 100pt;height: 100pt;margin:1pt;cursor: pointer;}

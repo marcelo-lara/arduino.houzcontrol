@@ -2,6 +2,8 @@ let devices = [];
 let typeEnm = [];
 let cmdEnm = [];
 let atcEnm = [];
+let statusEnm = [];
+
 
 const deviceHandler = {
   reload: ()=>{
@@ -11,7 +13,7 @@ const deviceHandler = {
   },
   update: (_upd)=>{
     console.log(_upd);
-    ui.status(_upd.type);
+    ui.status(_upd.act);
     if(!_upd.dev) return;
     let dev=devices.find(x=>x.id==_upd.dev.id);
     //test device
@@ -25,12 +27,28 @@ const deviceHandler = {
 
 const ui = {
   binded: false,
-
+  statusRx: undefined,
+  statusTx: undefined,
+  statusSt: undefined,
+  statusShow: (elem, status, timeout)=>{
+    if(!timeout) timeout=200;
+    elem.className=status;
+    setTimeout(()=>{elem.className='';},timeout);
+  },
   status: stat=>{
     switch(stat){
-      case actEnm.action_ack:
-        
-      break;
+      case actEnm.action_rfReceived:
+        ui.statusShow(ui.statusRx, 'rfOk');
+        break;
+        case actEnm.action_rfSentOk:
+        ui.statusShow(ui.statusTx, 'rfOk');
+        break;
+        case actEnm.action_rfSentFail:
+        ui.statusShow(ui.statusTx, 'rfFail', 2000);
+        break;
+        case actEnm.action_rfSentRetry:
+        ui.statusShow(ui.statusTx, 'rfRetry');
+        break;
     }
   },
 
@@ -74,7 +92,7 @@ const ui = {
       case typeEnm.temp:
       case typeEnm.humidity:
       case typeEnm.pressure:
-        target.innerText = dev.fVal==0?'-':dev.fVal;
+        target.innerText = dev.fVal==0?'-':dev.fVal.toFixed(2);
         break;
   
       // fan ////////////////////////////////////////
@@ -93,6 +111,23 @@ const ui = {
         targetBtn.classList.add('on');
         break;
 
+      // node ////////////////////////////////////////
+      case typeEnm.node:
+        console.log('update node',dev);
+        switch(dev.status){
+          case statusEnm.st_down: //connection down
+            ui.statusSt.className='err';
+            break;
+          case statusEnm.st_offline: //node offline
+            ui.statusSt.className='offline';
+            break;
+          case statusEnm.st_online: //node online
+            ui.statusSt.className='online';
+            break;
+        }
+
+        break;
+        
       default:
         console.log('update unknown device|',dev);
         break;  
@@ -102,11 +137,11 @@ const ui = {
   bind: (dev)=>{
     const elem=ui.getDevElem(dev.id);
     if(!elem){
-      console.log('ui.bind | element not found',dev);
+      //console.log('ui.bind | element not found',dev);
       return;
     }
     if(elem.getAttribute("bind")!=null){
-      console.log('ui.bind | already binded..',dev);
+      //console.log('ui.bind | already binded..',dev);
       return;
     }
     elem.setAttribute("bind", "1")
@@ -200,5 +235,9 @@ const ui = {
 
 
 (()=>{
+  ui.statusSt=document.getElementById('st');
+  ui.statusRx=document.getElementById('rx');
+  ui.statusTx=document.getElementById('tx');
+  
   //document.querySelectorAll("[dev]").forEach(ui.bind);
 })();

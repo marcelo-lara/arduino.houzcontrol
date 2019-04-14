@@ -13,7 +13,8 @@ socket.on('data', data => {
   if(data.typeEnm) typeEnm=data.typeEnm;
   if(data.cmdEnm) cmdEnm=data.cmdEnm;
   if(data.actEnm) actEnm=data.actEnm;
-  
+  if(data.statusEnm) statusEnm=data.statusEnm;
+ 
   deviceHandler.reload();
 });
 

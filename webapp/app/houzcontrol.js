@@ -16,9 +16,9 @@ module.exports = {
 
         //server status
         if (_rawdev === 'online')
-            return {act: enm.actEnm.action_conn, dev: module.exports.updateDevice(0, 1, enm.cmdEnm.CMD_VALUE)};
+            return {act: enm.actEnm.action_conn, dev: module.exports.updateDevice(0, enm.statusEnm.st_online, enm.cmdEnm.CMD_VALUE)};
         if (_rawdev === 'offline')
-            return {act: enm.actEnm.action_conn, dev: module.exports.updateDevice(0, 1, enm.cmdEnm.CMD_VALUE)};
+            return {act: enm.actEnm.action_conn, dev: module.exports.updateDevice(0, enm.statusEnm.st_offline, enm.cmdEnm.CMD_VALUE)};
 
         //split packet
         const _act = parseInt(_rawdev.substring(0, 1), 16);
@@ -38,6 +38,7 @@ module.exports = {
 
     //update device
     updateDevice: (_id, payload, cmd, _serial) => {
+        console.log('update device', _id);
         const dev = module.exports.devices.find(x => x.id === _id);
         if (!dev) { console.log('\tdevice not found??\t', _id); return; };
         
@@ -45,6 +46,9 @@ module.exports = {
         switch (dev.type) {
             case enm.typeEnm.node:
                 dev.iVal = payload; //store status
+                if(dev.id === 0){
+                    dev.status=payload;
+                }
 
                 //handle announce
                 if (dev.id === 0 || cmd != enm.cmdEnm.CMD_STATUS) return;

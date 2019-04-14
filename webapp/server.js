@@ -23,15 +23,17 @@ serial.list((err, ports)=>{
 
 
 // serial port connection
-const serialPort = new serial(portName, {baudRate: 115200}, err=>{
-  console.log('..Serial Port Error!!', err);
-});
+const serialPort = new serial(portName, {baudRate: 115200});
 const parser = new sp_readline()
 
 serialPort.pipe(parser);
 serialPort.on('open', () => {
   console.log('..Serial Port Opened')
-
+  io.emit('update', 
+  {
+    act: enums.actEnm.action_ack,
+    dev: houzcontrol.updateDevice(0,1,enums.statusEnm.st_offline,serialPort)
+  });
 })
 
 parser.on('data', data => {
@@ -64,7 +66,8 @@ io.on('connection', socket => {
     'devices': houzcontrol.devices,
     'typeEnm': enums.typeEnm,
     'cmdEnm': enums.cmdEnm,
-    'actEnm': enums.actEnm
+    'actEnm': enums.actEnm,
+    'statusEnm': enums.statusEnm
   });
 });
 
