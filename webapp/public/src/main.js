@@ -6,22 +6,44 @@ let statusEnm = [];
 
 
 const deviceHandler = {
-  reload: ()=>{
-    devices.forEach(ui.update); 
-    if(!ui.binded)
+  bind: ()=>{
+    devices.forEach(dev=>{
+
+      switch(dev.type){
+        
+        //lights
+        case typeEnm.array2x: devBind.lightArray(dev, 2); break;
+        case typeEnm.array4x: devBind.lightArray(dev, 4); break;
+        case typeEnm.array8x: devBind.lightArray(dev, 8); break;
+        default: break;
+      }
+
+    }); 
+
+
+    if(!ui.binded){
       devices.forEach(ui.bind); 
+    }
+
+
+    devices.forEach(ui.update); 
   },
   update: (_upd)=>{
-    console.log(_upd);
+
+    //status lights
     ui.status(_upd.act);
+
+    //check local cache
     if(!_upd.dev) return;
     let dev=devices.find(x=>x.id==_upd.dev.id);
-    //test device
-    if(!dev){
-      console.log('update device| ERR: not found',_upd);
-      return;
-    }
-    ui.update(_upd.dev);
+    if(!dev) return;
+    
+    //update data
+    dev.iVal=_upd.dev.iVal;
+    dev.fVal=_upd.dev.fVal;
+
+    //render device
+    ui.update(dev);
   }
 };
 
@@ -30,7 +52,7 @@ const ui = {
   statusRx: undefined,
   statusTx: undefined,
   statusSt: undefined,
-  statusShow: (elem, status, timeout)=>{
+  _statusShow: (elem, status, timeout)=>{
     if(!timeout) timeout=200;
     elem.className=status;
     setTimeout(()=>{elem.className='';},timeout);
@@ -38,16 +60,16 @@ const ui = {
   status: stat=>{
     switch(stat){
       case actEnm.action_rfReceived:
-        ui.statusShow(ui.statusRx, 'rfOk');
+        ui._statusShow(ui.statusRx, 'rfOk');
         break;
         case actEnm.action_rfSentOk:
-        ui.statusShow(ui.statusTx, 'rfOk');
+        ui._statusShow(ui.statusTx, 'rfOk');
         break;
         case actEnm.action_rfSentFail:
-        ui.statusShow(ui.statusTx, 'rfFail', 2000);
+        ui._statusShow(ui.statusTx, 'rfFail', 2000);
         break;
         case actEnm.action_rfSentRetry:
-        ui.statusShow(ui.statusTx, 'rfRetry');
+        ui._statusShow(ui.statusTx, 'rfRetry');
         break;
     }
   },
@@ -74,16 +96,22 @@ const ui = {
       case typeEnm.array2x:
       case typeEnm.array4x:
       case typeEnm.array8x:
+        console.log(dev);
+        if(!dev.btn){
+          console.log("not binded?");
+          return;
+        } 
+        
         let rval="00000000"+dev.iVal.toString(2);
         rval=rval.substring(rval.length-8);
-        target.setAttribute('data',rval);
-        for(i=0; i<target.children.length; i++){
-          targetChild=target.children[i].classList;
+        console.log(rval);
+        for(i=0; i<dev.btn.length; i++){
+          _btn=dev.btn[i].classList;
           if(rval[7-i]==="1")
           {
-            if(!targetChild.contains('on')) targetChild.add('on');
+            if(!_btn.contains('on')) _btn.add('on');
           }else{
-            if(targetChild.contains('on')) targetChild.remove('on');
+            if(_btn.contains('on')) _btn.remove('on');
           }
         }
         break;
@@ -167,25 +195,6 @@ const ui = {
             })
           })
         break;
-
-        case typeEnm.array2x:
-        case typeEnm.array4x:
-        case typeEnm.array8x:
-          for(i=0; i<elem.children.length; i++){
-            let bit=Math.pow(2, i);
-            let pkt={id: dev.id, cmd: cmdEnm.CMD_SET, payload: (i+1)};
-            elem.children[i].addEventListener("click", (ev)=>{
-              const srcElement = ev.srcElement;
-              let currVal = parseInt( ev.srcElement.parentElement.attributes.data.value,2);
-              if(srcElement.classList.contains('on'))
-                currVal -= bit;
-              else
-                currVal += bit;
-              pkt.payload=currVal;
-              socket.emit('command', pkt)
-            });
-          }
-          break;
       
       // bind fan //////////////////////////////////////////////
       case typeEnm.fan:
@@ -218,6 +227,9 @@ const ui = {
     }
 
   },
+  _bindArray: dev=>{
+
+  },
 
   fire: (devId, payload)=>{
     console.log('ui.fire |', devId);
@@ -235,6 +247,8 @@ const ui = {
 
 
 (()=>{
+
+  //server status
   ui.statusSt=document.getElementById('st');
   ui.statusRx=document.getElementById('rx');
   ui.statusTx=document.getElementById('tx');

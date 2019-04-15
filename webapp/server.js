@@ -60,7 +60,10 @@ io.on('connection', socket => {
     });
     }
   });
-
+  socket.on('debug', data=>{
+    console.log('io.debug | ', socket.id,'>',data);
+  });
+  
   // deliver device list to client
   socket.emit('data', {
     'devices': houzcontrol.devices,

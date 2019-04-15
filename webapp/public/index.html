@@ -65,42 +65,43 @@
             <span class="query" dev="3"></span>
         </h2>
         <div class="row">
-            <!--light-->
-            <div class="light b1 x1" dev="50">
-                light
-            </div>
             <div>
-            <div class="row">
-                <!--2x mainlight-->
-                <div class="light x2" dev="51">
-                    <div class="b4">m1</div>
-                    <div class="b4">m2</div>
-                </div>
-                <!--4x spotlight-->
-                <div class="light x4" dev="53">
-                    <div class="b4">s1</div>
-                    <div class="b4">s2</div>
-                    <div class="b4">s3</div>
-                    <div class="b4">s4</div>
-                </div>
-                <!--2x fxlight-->
-                <div class="light x2" dev="54">
-                    <div class="b4">fx1</div>
-                    <div class="b4">fx2</div>
+                <div class="light x8 dicroRow" dev="52">
+                    <div class="row">
+                        <div class="b4" b="0">d1</div>
+                        <div class="b4" b="1">d2</div>
+                        <div class="b4" b="2">d3</div>
+                        <div class="b4" b="3">d4</div>
+                    </div>
+                    <div class="row">
+                        <div class="b4" b="7">d8</div>
+                        <div class="b4" b="6">d7</div>
+                        <div class="b4" b="5">d6</div>
+                        <div class="b4" b="4">d5</div>
+                    </div>
                 </div>
             </div>
             <div class="row">
-                <div class="light x8" dev="52">
-                    <div class="b4" b="0">d1</div>
-                    <div class="b4" b="1">d2</div>
-                    <div class="b4" b="2">d3</div>
-                    <div class="b4" b="3">d4</div>
-                    <div class="b4" b="5">d5</div>
-                    <div class="b4" b="6">d6</div>
-                    <div class="b4" b="7">d7</div>
-                    <div class="b4" b="8">d8</div>
-                </div>
-            </div>
+                    <div class="row">
+                            <!--2x mainlight-->
+                            <div class="light x2" dev="51">
+                                <div class="b4">m1</div>
+                                <div class="b4">m2</div>
+                            </div>
+                            <!--4x spotlight-->
+                            <div class="light x4" dev="53">
+                                <div class="b4">s1</div>
+                                <div class="b4">s2</div>
+                                <div class="b4">s3</div>
+                                <div class="b4">s4</div>
+                            </div>
+                            <!--2x fxlight-->
+                            <div class="light x2" dev="54">
+                                <div class="b4">fx1</div>
+                                <div class="b4">fx2</div>
+                            </div>
+                        </div>
+                    </div>
             <div class="row">
                 <div class="fxanim" dev="55">
                     <div class="b4" val="0x00">clr</div>
@@ -145,9 +146,9 @@
         </div>
     </div>
 
-
     <!--app-->
     <script src="/socket.io/socket.io.js"></script>
+    <script src="/src/devbind.js"></script>
     <script src="/src/main.js"></script>
     <script src="/src/sockets.js"></script>
 </body>

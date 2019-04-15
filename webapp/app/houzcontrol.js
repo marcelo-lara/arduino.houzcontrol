@@ -38,11 +38,11 @@ module.exports = {
 
     //update device
     updateDevice: (_id, payload, cmd, _serial) => {
-        console.log('update device', _id);
+        //console.log('update device', _id);
         const dev = module.exports.devices.find(x => x.id === _id);
         if (!dev) { console.log('\tdevice not found??\t', _id); return; };
         
-        console.log("\t"+ dev.name)
+        //console.log("\t"+ dev.name)
         switch (dev.type) {
             case enm.typeEnm.node:
                 dev.iVal = payload; //store status
@@ -83,7 +83,7 @@ module.exports = {
             case enm.typeEnm.array4x:
             case enm.typeEnm.array8x:
                 dev.iVal = payload;
-                console.log("\tarray:", dev.iVal, "B");
+                console.log("\tarray: B" + dev.iVal.toString(2));
                 break;
 
             default:

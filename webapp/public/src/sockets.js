@@ -14,8 +14,7 @@ socket.on('data', data => {
   if(data.cmdEnm) cmdEnm=data.cmdEnm;
   if(data.actEnm) actEnm=data.actEnm;
   if(data.statusEnm) statusEnm=data.statusEnm;
- 
-  deviceHandler.reload();
+  deviceHandler.bind();
 });
 
 socket.on('update', deviceHandler.update) //delegate update handling

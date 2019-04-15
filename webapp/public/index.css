@@ -36,13 +36,21 @@ div.node span.query::before {font-size: 10pt; float: right; content: 'R'; cursor
 
 /* light */
 div.light.x1.on,
-div.light>div.on {background-color: green;color: #fff}
+div.light .on {background-color: green;color: #fff}
 div.light.x1,
 div.light>div {background-color: #666;color: #000;}
 div.light.x1,
 div.light>div {padding:5pt;margin:1pt;cursor: pointer;}    
 div.light {display: flex; flex-direction: row;}
 div.light>div {flex:1}
+
+/* dicro row */
+div.dicroRow {display: flex; flex-direction: column;}
+div.dicroRow>div {flex:1;background-color: #000;margin: 0;padding: 0;}
+div.dicroRow>div>div {
+  background-color: #666;
+  padding: 4pt;
+}
 
 /* fan */
 div.fan {display: flex; flex-direction: row; padding: 0;}
