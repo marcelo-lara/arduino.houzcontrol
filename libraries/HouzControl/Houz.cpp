@@ -153,7 +153,7 @@ void Houz::radioSetup()
 	//setup rf24 module
 	printf_begin();
 	radio->begin();
-	radio->setPALevel(RF24_PA_LOW); //RF24_PA_HIGH | RF24_PA_LOW | RF24_PA_MAX
+	radio->setPALevel(RF24_PA_HIGH); //RF24_PA_HIGH | RF24_PA_LOW | RF24_PA_MAX
 	radio->setDataRate(RF24_1MBPS);
 	radio->enableDynamicAck();
 	radio->setCRCLength(RF24_CRC_8);
