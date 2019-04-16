@@ -19,7 +19,6 @@ const render={
             case typeEnm.array2x:
             case typeEnm.array4x:
             case typeEnm.array8x:
-              // console.log(dev);
               if(!dev.btn){
                 console.log("not binded?");
                 return;
@@ -27,7 +26,6 @@ const render={
               
               let rval="00000000"+dev.iVal.toString(2);
               rval=rval.substring(rval.length-8);
-              // console.log(rval);
               for(let i=0; i<dev.btn.length; i++){
                 const _btn=dev.btn[i].classList;
                 if(rval[7-i]==="1")
@@ -64,7 +62,6 @@ const render={
       
             // node ////////////////////////////////////////
             case typeEnm.node:
-              // console.log('update node',dev);
               switch(dev.status){
                 case statusEnm.st_down: //connection down
                   status.st.className='err';
@@ -80,7 +77,6 @@ const render={
               break;
               
             default:
-              // console.log('update unknown device|',dev);
               break;  
         }
     }
