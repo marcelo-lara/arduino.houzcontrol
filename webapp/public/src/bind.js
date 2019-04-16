@@ -1,6 +1,6 @@
 "use strict";
 const bind={
-    allDevices: ()=>{
+    all: ()=>{
         devices.forEach(dev=>{
             if(!dev.elem){
                 dev.elem=document.querySelector('div[dev="'+dev.id+'"]');

@@ -53,3 +53,12 @@ div.fxanim {flex-wrap: wrap;}
 div.fxanim .btn,
 div.scene .btn{background-color: #306;color: #bbb;padding:5pt; flex: 1 1 20pt;min-height: 40pt;min-width: 40pt;}
 
+div {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+  }

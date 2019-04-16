@@ -4,17 +4,16 @@ let cmdEnm = [];
 let atcEnm = [];
 let statusEnm = [];
 
-
 const deviceHandler = {
   bind: ()=>{
-    bind.allDevices();
-
-    devices.forEach(ui.update); 
+    bind.all();
+    devices.forEach(render.device); 
   },
+
   update: (_upd)=>{
 
     //status lights
-    ui.status(_upd.act);
+    status.render(_upd.act);
 
     //check if device exists
     if(!_upd.dev) return;
@@ -26,140 +25,36 @@ const deviceHandler = {
     dev.fVal=_upd.dev.fVal;
 
     //render device
-    ui.update(dev);
+    render.device(dev);
   }
 };
 
-const ui = {
-  binded: false,
-  statusRx: undefined,
-  statusTx: undefined,
-  statusSt: undefined,
-  _statusShow: (elem, status, timeout)=>{
+const status = {
+  rx: undefined,
+  tx: undefined,
+  st: undefined,
+  setup: ()=>{
+    status.st=document.getElementById('st');
+    status.rx=document.getElementById('rx');
+    status.tx=document.getElementById('tx');
+  },
+  _render: (elem, status, timeout)=>{
     if(!timeout) timeout=200;
     elem.className=status;
     setTimeout(()=>{elem.className='';},timeout);
   },
-  status: stat=>{
+  render: stat=>{
     switch(stat){
-      case actEnm.action_rfReceived:
-        ui._statusShow(ui.statusRx, 'rfOk');
-        break;
-        case actEnm.action_rfSentOk:
-        ui._statusShow(ui.statusTx, 'rfOk');
-        break;
-        case actEnm.action_rfSentFail:
-        ui._statusShow(ui.statusTx, 'rfFail', 2000);
-        break;
-        case actEnm.action_rfSentRetry:
-        ui._statusShow(ui.statusTx, 'rfRetry');
-        break;
+      case actEnm.action_rfReceived:  status._render(status.rx, 'rfOk'); break;
+      case actEnm.action_rfSentOk:    status._render(status.tx, 'rfOk'); break;
+      case actEnm.action_rfSentFail: status._render(status.tx, 'rfFail', 2000); break;
+      case actEnm.action_rfSentRetry: status._render(status.tx, 'rfRetry'); break;
     }
-  },
-
-  update: dev=>{
-    const target=ui.getDevElem(dev.id);
-    if(!target){
-      console.log('ui.update | target not found',dev);
-      return;
-    }
-    if(dev.iVal===undefined) dev.iVal=0;
-    if(dev.fVal===undefined) dev.fVal=0;
-
-    switch (dev.type) {
-
-      // light
-      case typeEnm.light: 
-        if(dev.iVal==1)
-          target.classList.add('on');
-        else
-          target.classList.remove('on');
-        break;
-    
-      case typeEnm.array2x:
-      case typeEnm.array4x:
-      case typeEnm.array8x:
-        // console.log(dev);
-        if(!dev.btn){
-          // console.log("not binded?");
-          return;
-        } 
-        
-        let rval="00000000"+dev.iVal.toString(2);
-        rval=rval.substring(rval.length-8);
-        // console.log(rval);
-        for(i=0; i<dev.btn.length; i++){
-          _btn=dev.btn[i].classList;
-          if(rval[7-i]==="1")
-          {
-            if(!_btn.contains('on')) _btn.add('on');
-          }else{
-            if(_btn.contains('on')) _btn.remove('on');
-          }
-        }
-        break;
-
-      // enviroment device /////////////////////////
-      case typeEnm.temp:
-      case typeEnm.humidity:
-      case typeEnm.pressure:
-        target.innerText = dev.fVal==0?'-':dev.fVal.toFixed(2);
-        break;
-  
-      // fan ////////////////////////////////////////
-      case typeEnm.fan:
-
-        //set target
-        const targetBtn = target.children[dev.iVal];
-        if(targetBtn.classList.contains('on')) return;
-
-        //clear previosly selected
-        const prev=target.querySelector(".on");
-        if(prev)
-          prev.classList.remove('on');
-
-          //set on status
-        targetBtn.classList.add('on');
-        break;
-
-      // node ////////////////////////////////////////
-      case typeEnm.node:
-        // console.log('update node',dev);
-        switch(dev.status){
-          case statusEnm.st_down: //connection down
-            ui.statusSt.className='err';
-            break;
-          case statusEnm.st_offline: //node offline
-            ui.statusSt.className='offline';
-            break;
-          case statusEnm.st_online: //node online
-            ui.statusSt.className='online';
-            break;
-        }
-
-        break;
-        
-      default:
-        // console.log('update unknown device|',dev);
-        break;  
-    }
-  },
-
-  getDevElem: devId=>{
-    return document.querySelector("[dev='"+devId+"']");
   }
-
-
 };
 
 
 
 (()=>{
-
-  //server status
-  ui.statusSt=document.getElementById('st');
-  ui.statusRx=document.getElementById('rx');
-  ui.statusTx=document.getElementById('tx');
-  
-  //document.querySelectorAll("[dev]").forEach(ui.bind);
+  status.setup();
 })();
