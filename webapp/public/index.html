@@ -11,13 +11,10 @@
 </head>
 
 <body>
-    <div class="server">
-        <div>HouzControl</div>
-        <div class="status">
-            <div id="st" dev="0"></div>
-            <div id="tx"></div>
-            <div id="rx"></div>
-        </div>
+    <div class="status">
+        <div id="st" dev="0"></div>
+        <div id="tx"></div>
+        <div id="rx"></div>
     </div>
 
     <div class="node">
@@ -28,33 +25,33 @@
         <div class="devices">
             <div class="row">
                 <!--light-->
-                <div class="light b1 x1" dev="33">
+                <div class="btn light b1 x1" dev="33">
                     light
                 </div>
 
                 <!--enviroment-->
                 <div class="weather" dev="37">
-                    <div class="temp" dev="38">-</div>
-                    <div class="hum" dev="39">-</div>
-                    <div class="press" dev="40">-</div>
+                    <div class="btn temp" dev="38">-</div>
+                    <div class="btn hum" dev="39">-</div>
+                    <div class="btn press" dev="40">-</div>
                 </div>
 
             </div>
             <div class="row">
                 <!--fan-->
-                <div class="fan" dev="34">
-                    <div class="b1 on">off</div>
-                    <div class="b4">1</div>
-                    <div class="b4">2</div>
-                    <div class="b4">3</div>
-                    <div class="b4">4</div>
+                <div class="fan row" dev="34">
+                    <div class="btn b1 on">off</div>
+                    <div class="btn">1</div>
+                    <div class="btn">2</div>
+                    <div class="btn">3</div>
+                    <div class="btn">4</div>
                 </div>
             </div>
             <div class="row">
                 <!--ac-->
-                <div class="ac" dev="35">
-                    <div class="b1">AC</div>
-                    <div>temp</div>
+                <div class="ac row" dev="35">
+                    <div class="btn b1">AC</div>
+                    <div class="btn">temp</div>
                 </div>
             </div>
         </div>
@@ -66,55 +63,59 @@
         </h2>
         <div class="row">
             <div>
+                <!--2x mainlight-->
+                <div class="light x2 row" dev="51">
+                    <div class="btn b2">m1</div>
+                    <div class="btn b2">m2</div>
+                </div>
+                <!--8x dicroArray-->
                 <div class="light x8 dicroRow" dev="52">
                     <div class="row">
-                        <div class="b4" b="0">d1</div>
-                        <div class="b4" b="1">d2</div>
-                        <div class="b4" b="2">d3</div>
-                        <div class="b4" b="3">d4</div>
+                        <div class="btn b2" b="0">d1</div>
+                        <div class="btn b2" b="1">d2</div>
+                        <div class="btn b2" b="2">d3</div>
+                        <div class="btn b2" b="3">d4</div>
                     </div>
                     <div class="row">
-                        <div class="b4" b="7">d8</div>
-                        <div class="b4" b="6">d7</div>
-                        <div class="b4" b="5">d6</div>
-                        <div class="b4" b="4">d5</div>
+                        <div class="btn b2" b="7">d8</div>
+                        <div class="btn b2" b="6">d7</div>
+                        <div class="btn b2" b="5">d6</div>
+                        <div class="btn b2" b="4">d5</div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                    <div class="row">
-                            <!--2x mainlight-->
-                            <div class="light x2" dev="51">
-                                <div class="b4">m1</div>
-                                <div class="b4">m2</div>
-                            </div>
-                            <!--4x spotlight-->
-                            <div class="light x4" dev="53">
-                                <div class="b4">s1</div>
-                                <div class="b4">s2</div>
-                                <div class="b4">s3</div>
-                                <div class="b4">s4</div>
-                            </div>
-                            <!--2x fxlight-->
-                            <div class="light x2" dev="54">
-                                <div class="b4">fx1</div>
-                                <div class="b4">fx2</div>
-                            </div>
+            <div>
+                <div class="row">
+                    <!--4x spotlight-->
+                    <div class="light x4 row" dev="53">
+                        <div>
+                            <div class="btn b4" b="0">s1</div>
+                            <div class="btn b4" b="1">s2</div>
+                        </div>
+                        <div>
+                            <div class="btn b4" b="2">s3</div>
+                            <div class="btn b4" b="3">s4</div>
                         </div>
                     </div>
+                    <!--2x fxlight-->
+                    <div class="light x2" dev="54">
+                        <div class="btn b4">fx1</div>
+                        <div class="btn b4">fx2</div>
+                    </div>
+                </div>
+            </div>
             <div class="row">
-                <div class="fxanim" dev="55">
-                    <div class="b4" val="0x00">clr</div>
-                    <div class="b4" val="0x01">dicro On</div>
-                    <div class="b4" val="0x02">dicro Off</div>
-                    <div class="b4" val="0x10">dungeon On</div>
-                    <div class="b4" val="0x1F">dungeon Off</div>
+                <div class="fxanim col" dev="55">
+                    <div class="btn" val="0x00">clr</div>
+                    <div class="btn" val="0x01">dicro On</div>
+                    <div class="btn" val="0x02">dicro Off</div>
+                    <div class="btn" val="0x10">dungeon On</div>
+                    <div class="btn" val="0x1F">dungeon Off</div>
                 </div>
             </div>
 
         </div>
 
-        </div>
     </div>
     <div class="node">
         <h2>
@@ -124,26 +125,31 @@
         <div class="devices">
             <div class="row">
                 <!--light-->
-                <div class="light b1 x1" dev="19">
+                <div class="light btn b1 x1" dev="19">
                     light
                 </div>
 
                 <!--enviroment-->
                 <div class="weather" dev="31">
-                    <div class="temp" dev="26">-</div>
-                    <div class="hum" dev="27">-</div>
-                    <div class="press" dev="28">-</div>
+                    <div class="temp btn" dev="26">-</div>
+                    <div class="hum btn" dev="27">-</div>
+                    <div class="press btn" dev="28">-</div>
                 </div>
 
             </div>
             <div class="row">
                 <!--ac-->
-                <div class="ac" dev="11">
-                    <div class="b1">AC</div>
-                    <div>temp</div>
+                <div class="ac row" dev="11">
+                    <div class="btn b1">AC</div>
+                    <div class="btn">temp</div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="scene row">
+        <div class="btn hello">hello</div>
+        <div class="btn sleep">sleep</div>
+        <div class="btn goodbye">goodbye</div>
     </div>
 
     <!--app-->

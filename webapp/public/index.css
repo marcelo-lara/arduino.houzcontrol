@@ -4,20 +4,12 @@ body {background-color: #000; box-sizing: border-box; margin:0; padding: 0; tran
 div.row{display: flex; flex-direction: row;}
 div.row>div{flex:1;}
 h2 {margin:0; padding: 5pt;color: #ccc;}
+div.col{display: flex; flex-direction: column;}
+div.col>div{flex:1;}
 
 /* server status */
-.server{display: flex;flex-direction: row}
-
-.server>div:first-child{flex: auto}
-.server>div.status{width: 30pt;    height: 10pt;
-    display: flex;
-    flex-direction: row;
-    position: fixed;
-    top: 0;
-    right: 0;
-    background-color: #000000a6;}
-.server>div.status>div{flex: auto;background-color: #444;margin: 2pt;width: 10pt;}
-
+div.status{width: 30pt; height: 10pt; display: flex; flex-direction: row; position: fixed; top: 0; right: 0; background-color: #000000a6;}
+div.status>div{flex: auto;background-color: #444;margin: 2pt;width: 10pt;}
 .err {background-color: #F00 !important;}
 .online {background-color: #060 !important;}
 .offline {background-color: #600 !important;}
@@ -26,47 +18,28 @@ h2 {margin:0; padding: 5pt;color: #ccc;}
 .rfOk  {background-color: #0F0 !important}
 .rfFail  {background-color: #F00 !important}
 
+
 /*// devices //////////////////////////////////////////////////////////////////////////// */
-.b1 {flex: 0 0 100pt;width: 100pt;height: 100pt;margin:1pt;cursor: pointer;}
-.b2 {flex: 0 0 50pt;width: 50pt;height: 50pt;margin:1pt;cursor: pointer;}
-.b4 {flex: 0 0 25pt;width: 25pt;height: 25pt;margin:1pt;cursor: pointer;}
+.btn {padding: 5pt; margin:1pt; background-color: #666;color: #000; cursor: pointer;} 
+.btn.on {background-color: green;color: #fff}
+
+.b1 {flex: 0 0 100pt !important;width: 100pt;height: 100pt;}
+.b2 {flex: 0 0 50pt !important;width: 50pt;height: 50pt;}
+.b4 {flex: 0 0 25pt !important;width: 25pt;height: 25pt;}
 
 /*div.node span.query::before {font-size: 10pt; float: right; content: '\f021'; font-family: 'Font Awesome 5 Free'}*/
 div.node span.query::before {font-size: 10pt; float: right; content: 'R'; cursor: pointer; padding: 3pt;}
 
-/* light */
-div.light.x1.on,
-div.light .on {background-color: green;color: #fff}
-div.light.x1,
-div.light>div {background-color: #666;color: #000;}
-div.light.x1,
-div.light>div {padding:5pt;margin:1pt;cursor: pointer;}    
-div.light {display: flex; flex-direction: row;}
-div.light>div {flex:1}
-
 /* dicro row */
 div.dicroRow {display: flex; flex-direction: column;}
-div.dicroRow>div {flex:1;background-color: #000;margin: 0;padding: 0;}
-div.dicroRow>div>div {
-  background-color: #666;
-  padding: 4pt;
-}
+div.dicroRow>div {flex:1;background-color: #000;}
 
 /* fan */
-div.fan {display: flex; flex-direction: row; padding: 0;}
-div.fan>div {padding:1em;/* width: 5em; */height: 5em;flex: 1;margin:1pt;background-color: #ccc;cursor: pointer;display: flex;}
-div.fan>div:first-child {flex: 0 0 5em !important;color:#fff;}
+div.fan>div:first-child {color:#fff;}
 div.fan>div:first-child.on{background-color: #666; color:#000;}
-div.fan>div.on{background-color: green;color: #fff}
-
-/* ac */
-div.ac {display: flex;}
-div.ac>div{padding:1em;background-color: #ccc;cursor: pointer;margin:1pt;flex:1;height: 5em;}
-div.ac>div:first-child {flex: 0 0 5em !important;}
 
 /* wheather */
 div.weather {flex: 1 1 auto; display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; grid-template-areas: "temp temp hum" "temp temp press"}
-div.weather>div{padding:5pt;background-color: #ccc;margin:1pt;}
 div.weather .temp {grid-area: temp;font-size: 2em;/* text-align: center; *//* vertical-align: middle; */}
 div.weather .temp:after {content: "º"}
 div.weather .hum {grid-area: hum;}
@@ -75,5 +48,7 @@ div.weather .press {grid-area: press;}
 div.weather .press:after {content: "hPa"}
 
 /* fxanim */
-div.fxanim{display: flex; flex: 1 1 auto;height:30pt;}
-div.fxanim>div{ background-color: #306;color: #000;padding:5pt}
+div.fxanim .btn,
+div.scene .btn{background-color: #306;color: #bbb;padding:5pt;}
+
+/* scene */
