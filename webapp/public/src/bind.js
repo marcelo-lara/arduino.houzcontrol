@@ -1,3 +1,4 @@
+"use strict";
 const bind={
     allDevices: ()=>{
         devices.forEach(dev=>{
@@ -30,6 +31,7 @@ const bind={
         }); 
     },
 
+/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
     lightArray: (dev, alen)=>{
 
         //add buttons
@@ -63,6 +65,7 @@ const bind={
         }
 
     },
+
     light: dev=>{
         dev.elem.addEventListener("click", (ev)=>{
             socket.emit('command', {
@@ -72,6 +75,8 @@ const bind={
             });
         });
     },
+
+/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
     weather: dev=>{
         dev.elem.addEventListener("click", ()=>{
             socket.emit('command', {
@@ -80,8 +85,9 @@ const bind={
             })
         })    
     },
+    
     fan: dev=>{
-        for(i=0; i<dev.elem.children.length; i++){
+        for(let i=0; i<dev.elem.children.length; i++){
             let pkt={
               id: dev.id,
               cmd: cmdEnm.CMD_SET,
@@ -92,14 +98,15 @@ const bind={
             });
         }        
     },
+    
     fxanim: dev=>{
-        for(i=0; i<dev.elem.children.length; i++){
+        for(let i=0; i<dev.elem.children.length; i++){
             let pkt={
               id: dev.id,
               cmd: cmdEnm.CMD_SET,
               payload: parseInt(dev.elem.children[i].attributes.val.value,16)
             };
-            elem.children[i].addEventListener("click", ()=>{
+            dev.elem.children[i].addEventListener("click", ()=>{
               socket.emit('command', pkt)
             });
         }        
