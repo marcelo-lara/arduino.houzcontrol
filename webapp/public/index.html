@@ -62,59 +62,54 @@
             <span class="query" dev="3"></span>
         </h2>
         <div class="row">
-            <div>
-                <!--2x mainlight-->
-                <div class="light x2 row" dev="51">
-                    <div class="btn b2">m1</div>
-                    <div class="btn b2">m2</div>
-                </div>
-                <!--8x dicroArray-->
-                <div class="light x8 dicroRow" dev="52">
-                    <div class="row">
-                        <div class="btn b2" b="0">d1</div>
-                        <div class="btn b2" b="1">d2</div>
-                        <div class="btn b2" b="2">d3</div>
-                        <div class="btn b2" b="3">d4</div>
-                    </div>
-                    <div class="row">
-                        <div class="btn b2" b="7">d8</div>
-                        <div class="btn b2" b="6">d7</div>
-                        <div class="btn b2" b="5">d6</div>
-                        <div class="btn b2" b="4">d5</div>
-                    </div>
-                </div>
-            </div>
-            <div>
-                <div class="row">
-                    <!--4x spotlight-->
-                    <div class="light x4 row" dev="53">
-                        <div>
-                            <div class="btn b4" b="0">s1</div>
-                            <div class="btn b4" b="1">s2</div>
-                        </div>
-                        <div>
-                            <div class="btn b4" b="2">s3</div>
-                            <div class="btn b4" b="3">s4</div>
-                        </div>
-                    </div>
-                    <!--2x fxlight-->
-                    <div class="light x2" dev="54">
-                        <div class="btn b4">fx1</div>
-                        <div class="btn b4">fx2</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="fxanim col" dev="55">
-                    <div class="btn" val="0x00">clr</div>
-                    <div class="btn" val="0x01">dicro On</div>
-                    <div class="btn" val="0x02">dicro Off</div>
-                    <div class="btn" val="0x10">dungeon On</div>
-                    <div class="btn" val="0x1F">dungeon Off</div>
-                </div>
+
+            <!--2x mainlight-->
+            <div class="light x2 col" dev="51">
+                <div class="btn b2">m1</div>
+                <div class="btn b2">m2</div>
             </div>
 
+            <!--8x dicroArray-->
+            <div class="light x8 dicroRow" dev="52">
+                <div class="row">
+                    <div class="btn b2" b="0">d1</div>
+                    <div class="btn b2" b="1">d2</div>
+                    <div class="btn b2" b="2">d3</div>
+                    <div class="btn b2" b="3">d4</div>
+                </div>
+                <div class="row">
+                    <div class="btn b2" b="7">d8</div>
+                    <div class="btn b2" b="6">d7</div>
+                    <div class="btn b2" b="5">d6</div>
+                    <div class="btn b2" b="4">d5</div>
+                </div>
+            </div>
         </div>
+        <div class="row">
+            <!--4x spotlight-->
+            <div class="light x4 row" dev="53">
+                <div class="btn b4" b="0">s1</div>
+                <div class="btn b4" b="1">s2</div>
+                <div class="btn b4" b="2">s3</div>
+                <div class="btn b4" b="3">s4</div>
+            </div>
+            <!--2x fxlight-->
+            <div class="light x2 row" dev="54" style="flex: 0 0 auto">
+                <div class="btn b4">fx1</div>
+                <div class="btn b4">fx2</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="fxanim row" dev="55">
+                <div class="btn" val="0x00">clr</div>
+                <div class="btn" val="0x01">dicro On</div>
+                <div class="btn" val="0x02">dicro Off</div>
+                <div class="btn" val="0x10">dungeon On</div>
+                <div class="btn" val="0x1F">dungeon Off</div>
+            </div>
+        </div>
+
+    </div>
 
     </div>
     <div class="node">
@@ -146,10 +141,14 @@
             </div>
         </div>
     </div>
-    <div class="scene row">
-        <div class="btn hello">hello</div>
-        <div class="btn sleep">sleep</div>
-        <div class="btn goodbye">goodbye</div>
+    <div>
+        <h2>scenes</h2>
+        <div class="scene row">
+            <div class="btn hello">hello</div>
+            <div class="btn sleep">sleep</div>
+            <div class="btn goodbye">goodbye</div>
+        </div>
+
     </div>
 
     <!--app-->

@@ -4,7 +4,7 @@ body {background-color: #000; box-sizing: border-box; margin:0; padding: 0; tran
 div.row{display: flex; flex-direction: row;}
 div.row>div{flex:1;}
 h2 {margin:0; padding: 5pt;color: #ccc;}
-div.col{display: flex; flex-direction: column;}
+div.col{display: flex;flex-direction: column;}
 div.col>div{flex:1;}
 
 /* server status */
@@ -27,6 +27,7 @@ div.status>div{flex: auto;background-color: #444;margin: 2pt;width: 10pt;}
 .b2 {flex: 0 0 50pt !important;width: 50pt;height: 50pt;}
 .b4 {flex: 0 0 25pt !important;width: 25pt;height: 25pt;}
 
+
 /*div.node span.query::before {font-size: 10pt; float: right; content: '\f021'; font-family: 'Font Awesome 5 Free'}*/
 div.node span.query::before {font-size: 10pt; float: right; content: 'R'; cursor: pointer; padding: 3pt;}
 
@@ -47,8 +48,8 @@ div.weather .hum:after {content: "%"}
 div.weather .press {grid-area: press;}
 div.weather .press:after {content: "hPa"}
 
-/* fxanim */
+/* fxanim/scene */
+div.fxanim {flex-wrap: wrap;}
 div.fxanim .btn,
-div.scene .btn{background-color: #306;color: #bbb;padding:5pt;}
+div.scene .btn{background-color: #306;color: #bbb;padding:5pt; flex: 1 1 20pt;min-height: 40pt;min-width: 40pt;}
 
-/* scene */
