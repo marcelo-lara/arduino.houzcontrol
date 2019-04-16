@@ -7,24 +7,7 @@ let statusEnm = [];
 
 const deviceHandler = {
   bind: ()=>{
-    devices.forEach(dev=>{
-
-      switch(dev.type){
-        
-        //lights
-        case typeEnm.array2x: devBind.lightArray(dev, 2); break;
-        case typeEnm.array4x: devBind.lightArray(dev, 4); break;
-        case typeEnm.array8x: devBind.lightArray(dev, 8); break;
-        default: break;
-      }
-
-    }); 
-
-
-    if(!ui.binded){
-      devices.forEach(ui.bind); 
-    }
-
+    bind.allDevices();
 
     devices.forEach(ui.update); 
   },
@@ -33,7 +16,7 @@ const deviceHandler = {
     //status lights
     ui.status(_upd.act);
 
-    //check local cache
+    //check if device exists
     if(!_upd.dev) return;
     let dev=devices.find(x=>x.id==_upd.dev.id);
     if(!dev) return;
@@ -96,15 +79,15 @@ const ui = {
       case typeEnm.array2x:
       case typeEnm.array4x:
       case typeEnm.array8x:
-        console.log(dev);
+        // console.log(dev);
         if(!dev.btn){
-          console.log("not binded?");
+          // console.log("not binded?");
           return;
         } 
         
         let rval="00000000"+dev.iVal.toString(2);
         rval=rval.substring(rval.length-8);
-        console.log(rval);
+        // console.log(rval);
         for(i=0; i<dev.btn.length; i++){
           _btn=dev.btn[i].classList;
           if(rval[7-i]==="1")
@@ -141,7 +124,7 @@ const ui = {
 
       // node ////////////////////////////////////////
       case typeEnm.node:
-        console.log('update node',dev);
+        // console.log('update node',dev);
         switch(dev.status){
           case statusEnm.st_down: //connection down
             ui.statusSt.className='err';
@@ -157,7 +140,7 @@ const ui = {
         break;
         
       default:
-        console.log('update unknown device|',dev);
+        // console.log('update unknown device|',dev);
         break;  
     }
   },
@@ -232,7 +215,7 @@ const ui = {
   },
 
   fire: (devId, payload)=>{
-    console.log('ui.fire |', devId);
+    // console.log('ui.fire |', devId);
     let dev=devices.find(x=>x.id==devId);
     socket.emit('command', {id: devId, cmd: cmdEnm.CMD_SET, 'payload': payload});
   },
