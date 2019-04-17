@@ -46,8 +46,19 @@ module.exports = {
         switch (dev.type) {
             case enm.typeEnm.node:
                 dev.iVal = payload; //store status
-                if(dev.id === 0){
-                    dev.status=payload;
+                if(dev.id === 0) dev.status=payload;
+
+                //handle scenes
+                switch(dev.iVal){
+                    case enm.sceneEnm.scene_Hello:
+                    console.log("scene_Hello");
+                    break;
+                    case enm.sceneEnm.scene_Sleep:
+                    console.log("scene_Sleep");
+                    break;
+                    case enm.sceneEnm.scene_Goodbye:
+                    console.log("scene_Goodbye");
+                    break;
                 }
 
                 //handle announce

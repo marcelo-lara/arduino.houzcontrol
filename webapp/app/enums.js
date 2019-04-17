@@ -35,6 +35,11 @@ module.exports = {
         st_offline  :0,
         st_online   :1
     },
+    sceneEnm:{
+        scene_Goodbye:	0xCF0,
+        scene_Sleep:	0xCF1,
+        scene_Hello:	0xCF2
+    },
     
     //enum to string helper
     toStr: (val, enm)=>{

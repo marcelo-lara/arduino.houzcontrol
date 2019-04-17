@@ -94,6 +94,7 @@ void handleCommand(deviceData device) {
 
 				switch (device.payload)
 				{
+					//switch actions
 					case swSingleClick:
 						//no lights on > turn on main
 						if(dicroLight==0 && mainLight==0){
@@ -115,20 +116,24 @@ void handleCommand(deviceData device) {
 						break;
 
 					case swLongPress:
-						Serial.println("longpress: set goodbye");
 						houz.pushData(CMD_SET, living_node, scene_Goodbye);
 						houz.radioSend(CMD_VALUE, living_node, scene_Goodbye);
 						break;
-				
+
+					//scenes				
 					case scene_Goodbye:
 						if(mainLight>0) renderLights(mainLight, 0);
 						if(fxLight>0) renderLights(fxLight, 0);
 						if(spotlLight>0) renderLights(spotlLight, 0);
-						if(dicroLight==0) {
-							
-							return;
-						}
-						houz.pushData(CMD_SET, living_fx, fx_dicroOff);
+						if(dicroLight>0) {houz.pushData(CMD_SET, living_fx, fx_dicroOff);}
+						//set ac off
+						break;
+
+					case scene_Sleep:
+						houz.setIo(0);//blackout
+						//set ac off
+						break;
+
 
 					default:
 						Serial.print("unknown: 0x");
@@ -205,7 +210,6 @@ void handleCommand(deviceData device) {
 		Serial.println("[living_fx] ");
 		if (device.cmd == CMD_SET) 
 			animSetup(device.payload);
-	
 		break;
 
 	case 0:
@@ -218,6 +222,10 @@ void handleCommand(deviceData device) {
 		break;
 	}				  
 };
+
+void notifyStatus(){
+	
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IR Remote Control
@@ -254,7 +262,6 @@ void mainLightToggle(){
 	houz.radioSend(CMD_VALUE, living_mainLight, mainLight);
 	if (dungeonMode) dungeonChanged = true;
 }
-
 
 void renderLights(int module, int outSetting) {
 	switch (module)	{
@@ -324,7 +331,7 @@ void animSetup(int _anim) {
 	anim.step = 0;
 	anim.on = true;
 	anim.id = _anim;
-	anim.stepInterval = 200;
+	anim.stepInterval = 100;
 	anim.stepCount = 8;
 
 	switch (anim.id){
@@ -364,12 +371,6 @@ void animRender() {
 	if (!anim.on) return;
 	if (millis() < anim.nextStep) return;
 	anim.nextStep = millis() + anim.stepInterval;
-
-	// Serial.print("animRender [");
-	// Serial.print(anim.step);
-	// Serial.print("/");
-	// Serial.print(anim.stepCount);
-	// Serial.print("] ");
 
 	//render step
 	switch (anim.id)

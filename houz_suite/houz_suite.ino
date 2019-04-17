@@ -79,6 +79,7 @@ void handleCommand(deviceData device) {
 				houz.radioSend(CMD_EVENT, suite_AC, getAC());
 				houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
 				break;
+			
 			case CMD_SET:
 				switch (device.payload)
 				{
@@ -86,6 +87,7 @@ void handleCommand(deviceData device) {
 					case swSingleClick:
 						houz.pushData(CMD_SET, suite_light, 2);
 						break;
+
 					case swLongPress:
 						houz.pushData(CMD_SET, suite_node, scene_Sleep);
 						houz.radioSend(CMD_SET, server_node, scene_Sleep);
@@ -95,6 +97,7 @@ void handleCommand(deviceData device) {
 					case scene_Sleep:
 						houz.pushData(CMD_SET, suite_light, 0);
 						break;
+
 					case scene_Goodbye:
 						houz.pushData(CMD_SET, suite_light, 0);
 						houz.pushData(CMD_SET, suite_fan, 0);
@@ -127,8 +130,9 @@ void handleCommand(deviceData device) {
 		houz.radioSend(houzWeather.getWeather());
     break;
 
+	// ac
+
 	default:		  
-		//Serial.println("wtf? " + device.raw);
 		break;
 	}	  
 };
@@ -166,8 +170,7 @@ void handleIrCode(unsigned long irCode) {
 	case sonyIrPause: houz.pushData(CMD_SET, suite_node, scene_Sleep);
 
 	//unknown code
-  default:
-		break;
+  default: break;
 	}
 }
 
