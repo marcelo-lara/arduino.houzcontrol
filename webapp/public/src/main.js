@@ -57,4 +57,5 @@ const status = {
 
 (()=>{
   status.setup();
+  bind.scene(document.querySelector("div.scene"));
 })();

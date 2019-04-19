@@ -89,8 +89,6 @@ void handleCommand(deviceData device) {
 		switch (device.cmd)
 		{
 			case CMD_SET:
-				Serial.print("cmd: 0x");
-				Serial.println(device.payload,HEX);
 
 				switch (device.payload)
 				{
@@ -101,13 +99,11 @@ void handleCommand(deviceData device) {
 							mainLightToggle();
 							return;
 						}
-
 						if(mainLight>0)
 							renderLights(living_mainLight,0);
 						if(dicroLight>0)
 							houz.pushData(CMD_SET, living_fx, fx_dicroOff);	
 
-						return;
 						break;
 
 					case swDoubleClick:
@@ -152,20 +148,17 @@ void handleCommand(deviceData device) {
 		break;
 
 	case living_rawRender	: // set outputs to payload
-		Serial.println("rawRender");
 		if (device.cmd == CMD_SET) houz.setIo(device.payload);
 		break;
 
 //////////////////
 // APPLIANCES
 	case living_AC			:
-		Serial.println("ac");
 		break;
 
 //////////////////
 // LIGHTING
 	case living_mainLight: // 2x center light
-		Serial.println("[main_light] ");
 		if (device.cmd == CMD_SET) {
 			if(device.payload==2){
 				mainLightToggle();
@@ -177,7 +170,6 @@ void handleCommand(deviceData device) {
 		break;
 
 	case living_dicroLight: // dicro array
-		Serial.println("[dicroLight] ");
 		if (device.cmd == CMD_SET) {
 			renderLights(living_dicroLight, device.payload);
 			if (dungeonMode) dungeonChanged = true;
@@ -186,7 +178,6 @@ void handleCommand(deviceData device) {
 		break;
 
 	case living_spotLight: // 4x spotlights
-		Serial.println("[spotLight] ");
 		if (device.cmd == CMD_SET) {
 			renderLights(living_spotLight, device.payload);
 			if (dungeonMode) dungeonChanged = true;
@@ -195,7 +186,6 @@ void handleCommand(deviceData device) {
 		break;
 
 	case living_fxLight: // 2x lighting fx
-		Serial.println("[fxLight] ");
 		if (device.cmd == CMD_SET) {
 			renderLights(living_fxLight, device.payload);
 			if (dungeonMode) dungeonChanged = true;
@@ -207,25 +197,17 @@ void handleCommand(deviceData device) {
 //////////////////
 // FX
 	case living_fx: // fx controller
-		Serial.println("[living_fx] ");
 		if (device.cmd == CMD_SET) 
 			animSetup(device.payload);
 		break;
 
 	case 0:
-		Serial.print("msg: ");
-		Serial.println(device.message);
 		break;
 
 	default:		  
-		Serial.println("[handleCommand] unknown " + device.raw);
 		break;
 	}				  
 };
-
-void notifyStatus(){
-	
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IR Remote Control
@@ -238,17 +220,14 @@ void infraredRead() {
 }
 
 void handleIrCode(unsigned long irCode) {
-	Serial.print("\nIR.receive\t");
 	switch (irCode)	{
 
 	//turn light on
 	case irDvrCenter:
-		Serial.println("irDvrCenter");
 		houz.pushData(CMD_SET, living_mainLight, 2);
 		break;
 
 	default:
-		Serial.print("unknown: 0x");
 		Serial.println(irCode, HEX);
 		break;
 	}
@@ -325,9 +304,6 @@ u32 dragonEngage[] = {
 
 
 void animSetup(int _anim) {
-	Serial.print(":: animSetup ");
-	Serial.println(_anim);
-
 	anim.step = 0;
 	anim.on = true;
 	anim.id = _anim;
@@ -346,7 +322,6 @@ void animSetup(int _anim) {
 		break;
 
 	case 0x10: //dungeon engage
-		Serial.println("[dungeon mode engage]");
 		anim.stepCount = 5;
 		anim.stepInterval = 200;
 		dungeonMode = true;
@@ -355,14 +330,12 @@ void animSetup(int _anim) {
 		break;
 
 	case 0x1F: //dragon disengage
-		Serial.println("[dungeon mode disengage]");
 		anim.on = false;
 		if (dungeonChanged) return; 	//leave untouched
 		houz.setIo(0xFFFF & ~dungeonPreStatus);	//reset to previous status
 		break;
 
 	default:
-		Serial.println("<< not handled..");
 		anim.on = false;
 		break;
 	}

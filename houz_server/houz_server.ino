@@ -14,6 +14,9 @@
 RF24 radio(rfCE, rfCSN);
 Houz houz(server_node, radio, statusLed, Serial);
 
+int nodes[] = {suite_node, office_node, living_node};
+#define nodeCount 3
+
 void setup() {
 	Serial.begin(115200);
 	Serial.println();
@@ -21,5 +24,33 @@ void setup() {
 }
 
 void loop() {
-	houz.hasData();
+	if(!houz.hasData()) return;
+	deviceData dev = houz.getData();
+	switch (dev.payload)
+	{
+	
+	// notify scene
+	case scene_Hello:	
+	case scene_Sleep:
+	case scene_Goodbye:
+		setScene(dev.node, dev.payload);
+		break;
+
+	//deliver packet to rf
+	default:
+		if(dev.node==server_node) return;
+
+		//deliver packet to rf
+		houz.radioSend(dev);
+		break;
+	}
+}
+
+void setScene(int originNode, unsigned long scene){
+	for (int i = 0; i < nodeCount; i++) {
+		if(nodes[i]==originNode) continue;
+		Serial.print("target\t");
+		Serial.println(nodes[i],HEX);
+		houz.radioSend(CMD_SET, nodes[i], scene, nodes[i]);
+	}
 }

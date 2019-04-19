@@ -8,17 +8,17 @@ HouzWeather::HouzWeather(int _sda, int _scl){
 };
 
 bool HouzWeather::init(){
-		bme280.parameter.communication =		0;		//Choose communication protocol
-		bme280.parameter.I2CAddress =			0x76;	//Choose I2C Address
-		bme280.parameter.sensorMode =			0b11;	//Choose sensor mode
-		bme280.parameter.IIRfilter =			0b100;	//Setup for IIR Filter
-		bme280.parameter.humidOversampling =	0b101;	//Setup Humidity Oversampling
-		bme280.parameter.tempOversampling =		0b101;	//Setup Temperature Ovesampling
-		bme280.parameter.pressOversampling =	0b101;	//Setup Pressure Oversampling 
-		bme280.parameter.pressureSeaLevel =		1013.25;//default value of 1013.25 hPa
-		bme280.parameter.tempOutsideCelsius =	15;		//default value of 15�C
-		_current.online = (bme280.init() ==		0x60);
-		return _current.online;
+	bme280.parameter.communication =		0;		//Choose communication protocol
+	bme280.parameter.I2CAddress =			0x76;	//Choose I2C Address
+	bme280.parameter.sensorMode =			0b11;	//Choose sensor mode
+	bme280.parameter.IIRfilter =			0b100;	//Setup for IIR Filter
+	bme280.parameter.humidOversampling =	0b101;	//Setup Humidity Oversampling
+	bme280.parameter.tempOversampling =		0b101;	//Setup Temperature Ovesampling
+	bme280.parameter.pressOversampling =	0b101;	//Setup Pressure Oversampling 
+	bme280.parameter.pressureSeaLevel =		1013.25;//default value of 1013.25 hPa
+	bme280.parameter.tempOutsideCelsius =	15;		//default value of 15�C
+	_current.online = (bme280.init() == 0x60);
+	return _current.online;
 }
 
 Weather HouzWeather::getWeather(){

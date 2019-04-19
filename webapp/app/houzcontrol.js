@@ -1,7 +1,8 @@
 "use strict"
 const enm = require('./enums');
 const toHex = (val, len) => {
-    return ("0000" + val.toString(16)).toUpperCase().substr(-len);
+    let ret=("0000" + val.toString(16).toUpperCase()).substr(-len);
+    return ret;
 }
 
 module.exports = {
@@ -63,7 +64,7 @@ module.exports = {
 
                 //handle announce
                 if (dev.id === 0 || cmd != enm.cmdEnm.CMD_STATUS) return;
-                console.log("\t> node announce..");
+                console.log("\tnode announce!");
                 _serial.write("N" + toHex(dev.node, 1) + "DA0" + toHex(dev.node, 1) + "0000\n");
                 break;
 
@@ -107,7 +108,8 @@ module.exports = {
         return dev;
     },
     encodePacket: (_raw) => {
-        if (!_raw.id) { console.log('\tencodePacket: ERR id not defined .. abort'); return; }
+        if (_raw.id===undefined) { 
+            console.log('\t---encodePacket: ERR id not defined .. abort'); return; }
 
         //set target device
         const dev = module.exports.devices.find(x => x.id == _raw.id)
@@ -126,7 +128,7 @@ module.exports = {
     },
 
     devices: [
-        {id: 0x00, name: 'server_node', type: enm.typeEnm.node, fVal: 0, iVal: 0, status: -1},
+        {id: 0x00, name: 'server_node', type: enm.typeEnm.node, fVal: 0, iVal: 0, node:0, status: -1},
 
         // Office
         {name: 'office_node',       id:  0x1, type: enm.typeEnm.node, node: 1}, //N1DC04F0F0

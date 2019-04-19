@@ -39,6 +39,7 @@ deviceData HouzDevicesCodec::decode(String str) { //from serial
 	dev.payload = StrToHex(str.substring(6, 10));
 	dev.raw = StrToHex(str.substring(3, 10));
 	dev.hasData = (dev.id != 0);
+	dev.message=str;
 	return dev;
 }
 

@@ -51,12 +51,13 @@ io.on('connection', socket => {
   });  
 
   socket.on('command', data=>{
-    console.log('io.cmd | ', socket.id,'>',data);
+    console.log('io.cmd < ', socket.id,'|',data);
     const pkt = houzcontrol.encodePacket(data);
     if(pkt){
       console.log('<- ',pkt);
-      serialPort.write(pkt+"\n", err=>{  
-        console.log('..Serial Port Error!!', err);
+      serialPort.write(pkt+"\n", error=>{  
+        if(!error)
+          console.log('..Serial Port Error!!', error);
     });
     }
   });

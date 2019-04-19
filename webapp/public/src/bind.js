@@ -110,5 +110,22 @@ const bind={
               socket.emit('command', pkt)
             });
         }        
+    },
+
+    scene: (panel)=>{
+        if(!panel)
+            return;
+        panel.addEventListener("click", (ev)=>{
+            
+            console.log("panel click", ev.target);
+            socket.emit('command', {
+                id: 0,
+                cmd: cmdEnm.CMD_SET,
+                payload: parseInt(ev.target.getAttribute("val"))
+            });
+
+        });
+            
     }
+
 }

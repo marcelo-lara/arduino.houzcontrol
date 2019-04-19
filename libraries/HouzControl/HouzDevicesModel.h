@@ -44,4 +44,5 @@ public:
 	float hum;
 	float pressure;
 	float alt;
+	float light;
 };

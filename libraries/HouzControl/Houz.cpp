@@ -158,7 +158,7 @@ void Houz::radioSetup()
 	radio->enableDynamicAck();
 	radio->setCRCLength(RF24_CRC_8);
 	radio->setChannel(rfChannel);
-	radio->setRetries(15, 15);
+	radio->setRetries(20, 10);
 
 	//determine device pipes
 	setPipes();
@@ -246,11 +246,11 @@ bool Houz::radioRead()
 		radio->read(&_radioPayLoad, sizeof(unsigned long));
 	}
 
-	//decode payload
-	deviceData device = codec->decode(_radioPayLoad, _radioNode);
-
 	//prepare for next packet
 	radio->startListening();
+
+	//decode payload
+	deviceData device = codec->decode(_radioPayLoad, _radioNode);
 
 	//server must notify host
 	if (node_id == server_node) {
@@ -260,24 +260,25 @@ bool Houz::radioRead()
 		console->print(_radioNode, HEX);
 		console->print(_radioPayLoad, HEX);
 		console->println(F("]"));
+
+		//handle scenes
+		if(device.payload>=0xCF0 && device.payload<=0xCFF){
+		 	pushData(device);
+		};
+		
 		return false;
 	}
 
 	//handle pong back command
-	if (device.hasData && device.id == node_id && device.cmd == CMD_STATUS) {
+	if (node_id != server_node && device.hasData && device.id == node_id && device.cmd == CMD_STATUS) {
 		radioSend(CMD_STATUS, device.id, (0xFFFF) & ~device.payload);
 		return false;
 	}
-	//console->print(F("rfIn> "));
-	//console->print(device.id, HEX);
-	//console->print(F(" | "));
-	//console->println(device.payload, HEX);
 
 	//handle command
 	pushData(device);
 	return device.hasData;
 };
-
 
 bool Houz::radioSend(deviceData device) {
 	return radioSend(device, device.node);
@@ -291,7 +292,7 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload) {
 bool Houz::radioSend(Weather weather){
 	if(node_id==suite_node){
 		radioSend(CMD_VALUE, suite_enviroment, weather.online);
-		if(weather.online){
+		if(weather.online==1){
 			radioSend(CMD_VALUE, suite_temp, weather.temp*100);
 			radioSend(CMD_VALUE, suite_humidity, weather.hum*100);
 			radioSend(CMD_VALUE, suite_pressure, codec->pressureEncode(weather.pressure));
@@ -302,8 +303,6 @@ bool Houz::radioSend(Weather weather){
 
 bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) {
 	if (!radio_status) return false;
-	//if (!server_online) return false; //TODO: handle server status
-	if (!radioSendQueue.isEmpty()) return false;
 	if (radioSendQueue.count() > 9) return false;
 
 	//enqueue send
@@ -316,15 +315,15 @@ bool Houz::radioSend(u8 deviceCmd, u8 deviceId, u32 devicePayload, byte nodeId) 
 		return true;
 	}
 	//console->print(F("rfPush\t"));
-	printRadioPacket(packet);
+	//printRadioPacket(packet);
 	//console->println();
 	return true;
 };
 
 void Houz::printRadioPacket(radioPacket packet) {
-	//console->print(F("N"));
-	//console->print(packet.node, HEX);
-	//console->print(packet.message, HEX);
+	console->print(F("N"));
+	console->print(packet.node, HEX);
+	console->println(packet.message, HEX);
 };
 
 void Houz::radioWrite() {
@@ -333,13 +332,16 @@ void Houz::radioWrite() {
 
 	//peek next packet
 	if (radioSendQueue.isEmpty()) { return; };
-	radioPacket packet = radioSendQueue.peek();
+	radioPacket packet =  radioSendQueue.dequeue();//radioSendQueue.peek();
 
 	//wait when retrying
-	if (packet.retries > 0 && packet.nextRetry > millis()) 
+	if (packet.retries > 0 && packet.nextRetry > millis()) {
+		radioSendQueue.enqueue(packet);
 		return;
+	}
+		
 
-	packet = radioSendQueue.dequeue();
+	// packet = radioSendQueue.dequeue();
 
 	//open write pipe
 	uint64_t writeAddress;
@@ -357,10 +359,11 @@ void Houz::radioWrite() {
 	//send
 	bool result = 0;
 	result = radio->write(&packet.message, sizeof(unsigned long), 0);
+	radio->startListening();
 	if (!result) {
 		packet.retries++;
-		packet.nextRetry = millis() + 1000;
-		if (packet.retries < 10) {
+		packet.nextRetry = millis() + 500;
+		if (packet.retries < 5) {
 			radioWriteResult(action_rfSentRetry, packet);
 			radioSendQueue.enqueue(packet);
 		}
@@ -376,7 +379,6 @@ void Houz::radioWrite() {
 			server_online = true;
 	};
 
-	radio->startListening();
 	radio_next_packet = millis() + 100;
 }
 void Houz::radioWriteResult(byte result, radioPacket packet) {
@@ -404,7 +406,7 @@ void Houz::radioWriteResult(byte result, radioPacket packet) {
 		//console->print(F("ok\t"));
 		break;
 	}
-	printRadioPacket(packet);
+	//printRadioPacket(packet);
 	//console->println();
 
 };
@@ -416,6 +418,8 @@ bool Houz::serialRead(){
   while (console->available() > 0) {
     int inChar = console->read();
 		if (inChar == '\n' || (char)inChar == '\\') {
+			// pushData(codec->decode(serialBuffer));
+			// serialBuffer = "";
 			handleCommand(codec->decode(serialBuffer));
 		}else{
 			serialBuffer += (char)inChar;
@@ -434,7 +438,11 @@ void Houz::handleCommand(deviceData device){
 		console->print(F("[0"));
 		console->print(device.message);
 		console->println(F("]"));
-		if (device.hasData) radioSend(device);
+		if (device.node==server_node){
+			pushData(device);
+		}
+		else if (device.hasData) 
+			radioSend(device);
 	}
 	else {
 		//client nodes
