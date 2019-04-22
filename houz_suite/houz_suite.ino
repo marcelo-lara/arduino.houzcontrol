@@ -43,6 +43,7 @@ HouzWeather houzWeather(bme280_SDA, bme280_SCL);
 #define ioDataPin 6	//74HC595[14] DS
 
 Houz houz(suite_node, radio, statusLed, Serial, ioDataPin, ioLatchPin, ioClockPin);
+int fanOut = [0, B1, B11, B111, B1111];
 
 void setup()
 {
@@ -63,15 +64,10 @@ void setup()
 
 void loop()
 {
-	if (houz.hasData())
-	{
-		handleCommand(houz.getData());
-	}
 	infraredRead();
-}
-
-void handleCommand(deviceData device)
-{
+	if (!houz.hasData()) continue;
+	deviceData device = houz.getData());
+	
 	switch (device.id)
 	{
 
@@ -113,14 +109,14 @@ void handleCommand(deviceData device)
 		}
 		break;
 
-		// AC control
+	// AC control
 	case suite_AC:
 		if (device.cmd == CMD_SET)
 			setAC(device.payload);
 		houz.radioSend(CMD_EVENT, suite_AC, getAC());
 		break;
 
-		// main light
+	// main light
 	case suite_light:
 		if (device.cmd == CMD_SET)
 			setMainLight(device.payload);
@@ -134,7 +130,7 @@ void handleCommand(deviceData device)
 		houz.radioSend(CMD_EVENT, suite_fan, getFanSpeed());
 		break;
 
-		// weather
+	// weather
 	case suite_enviroment:
 		houz.radioSend(houzWeather.getWeather());
 		break;
@@ -224,45 +220,51 @@ bool getMainLight()
 // Fan control
 void setFanSpeed(int fanSpeed)
 {
-	switch (fanSpeed)
-	{
-	case 0:
-		houz.setIo(B0);
-		break;
-	case 1:
-		houz.setIo(B1);
-		break;
-	case 2:
-		houz.setIo(B11);
-		break;
-	case 3:
-		houz.setIo(B111);
-		break;
-	case 4:
-		houz.setIo(B1111);
-		break;
-	default:
-		break;
-	}
+	houz.setIo(fanOut[fanSpeed]);
+	// switch (fanSpeed)
+	// {
+	// case 0:
+	// 	houz.setIo(B0);
+	// 	break;
+	// case 1:
+	// 	houz.setIo(B1);
+	// 	break;
+	// case 2:
+	// 	houz.setIo(B11);
+	// 	break;
+	// case 3:
+	// 	houz.setIo(B111);
+	// 	break;
+	// case 4:
+	// 	houz.setIo(B1111);
+	// 	break;
+	// default:
+	// 	break;
+	// }
 }
 int getFanSpeed()
 {
-	switch (houz.getIoStatus())
+	int fanStatus=houz.getIoStatus();
+	for (int i = 0; i < 5; i++)
 	{
-	case B1:
-		return 1;
-		break;
-	case B11:
-		return 2;
-		break;
-	case B111:
-		return 3;
-		break;
-	case B1111:
-		return 4;
-		break;
+		if(fanOut[i]==fanStatus) return i;
 	}
-	return 0;
+	// switch (houz.getIoStatus())
+	// {
+	// case B1:
+	// 	return 1;
+	// 	break;
+	// case B11:
+	// 	return 2;
+	// 	break;
+	// case B111:
+	// 	return 3;
+	// 	break;
+	// case B1111:
+	// 	return 4;
+	// 	break;
+	// }
+	// return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
