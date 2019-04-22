@@ -545,7 +545,7 @@ void Houz::inSwitchUpdate(){
 
 	//handle click
   if(currStatus 
-			&& (currMillis - inSw_lastMs)>50 //ignore noise 
+			&& (currMillis - inSw_lastMs)>20 //ignore noise 
 			&& (currMillis - inSw_lastMs)<inSwitch_clickInterval) 
 		inSwitchCount++;
 
