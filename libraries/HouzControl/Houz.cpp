@@ -495,6 +495,8 @@ void Houz::ioRender() {
 	shiftOut(dataPin, clockPin, MSBFIRST, (ioStatus >> 8));
 	shiftOut(dataPin, clockPin, MSBFIRST, ioStatus);
 	digitalWrite(latchPin, HIGH);
+	console->print("render\t");
+	console->println(ioStatus,BIN);
 }
 
 word Houz::getIoStatus() {

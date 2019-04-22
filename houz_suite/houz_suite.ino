@@ -230,16 +230,16 @@ void setFanSpeed(int fanSpeed)
 		houz.setIo(B0);
 		break;
 	case 1:
-		houz.setIo(B1000);
+		houz.setIo(B1);
 		break;
 	case 2:
-		houz.setIo(B0100);
+		houz.setIo(B11);
 		break;
 	case 3:
-		houz.setIo(B0010);
+		houz.setIo(B111);
 		break;
 	case 4:
-		houz.setIo(B0001);
+		houz.setIo(B1111);
 		break;
 	default:
 		break;
@@ -249,16 +249,16 @@ int getFanSpeed()
 {
 	switch (houz.getIoStatus())
 	{
-	case 8:
+	case B1:
 		return 1;
 		break;
-	case 4:
+	case B11:
 		return 2;
 		break;
-	case 2:
+	case B111:
 		return 3;
 		break;
-	case 1:
+	case B1111:
 		return 4;
 		break;
 	}
