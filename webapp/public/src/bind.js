@@ -4,6 +4,10 @@ const bind={
         devices.forEach(dev=>{
             if(!dev.elem){
                 dev.elem=document.querySelector('div[dev="'+dev.id+'"]');
+
+                if(!bind.binded.indexOf(dev.id)<0) continue;
+                bind.binded.push(dev.id);
+
                 if(dev.elem!==null){
                     switch(dev.type){
               
@@ -126,6 +130,8 @@ const bind={
 
         });
             
-    }
+    },
+
+    binded: []
 
 }
