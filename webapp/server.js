@@ -7,20 +7,12 @@ const serial = require('serialport')
 const sp_readline = serial.parsers.Readline
 const enums = require('./app/enums');
 const houzcontrol = require('./app/houzcontrol');
-const portName="com9"; //"/dev/ttyUSB0"; //com7
+const portName = process.env.PORT; //"/dev/ttyUSB0"; //com7
 
 const port = 3000
 const Server = http.createServer(app)
 const io = require('socket.io').listen(Server)
 app.use(express.static(__dirname + '/public'))
-
-// debug
-
-serial.list((err, ports)=>{
-  console.log('--SERIAL--');
-  console.log('>', ports[0]);
-});
-
 
 // serial port connection
 const serialPort = new serial(portName, {baudRate: 115200});
@@ -28,7 +20,7 @@ const parser = new sp_readline()
 
 serialPort.pipe(parser);
 serialPort.on('open', () => {
-  console.log('..Serial Port Opened')
+  console.log('link on', portName);
   io.emit('update', 
   {
     act: enums.actEnm.action_ack,
@@ -44,10 +36,10 @@ parser.on('data', data => {
 
 // clients handling
 io.on('connection', socket => {
-  console.log('io.connect | ', socket.id);
+  //console.log('io.connect | ', socket.id);
 
   socket.on('disconnect', socket=>{
-    console.log('io.disconnect | ', socket.id);
+    //console.log('io.disconnect | ', socket.id);
   });  
 
   socket.on('command', data=>{
@@ -55,10 +47,7 @@ io.on('connection', socket => {
     const pkt = houzcontrol.encodePacket(data);
     if(pkt){
       console.log('<- ',pkt);
-      serialPort.write(pkt+"\n", error=>{  
-        if(!error)
-          console.log('..Serial Port Error!!', error);
-    });
+      serialPort.write(pkt+"\n");
     }
   });
   socket.on('debug', data=>{

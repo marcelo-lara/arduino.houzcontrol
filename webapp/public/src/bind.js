@@ -5,32 +5,35 @@ const bind={
             if(!dev.elem){
                 dev.elem=document.querySelector('div[dev="'+dev.id+'"]');
 
-                if(!bind.binded.indexOf(dev.id)<0) continue;
-                bind.binded.push(dev.id);
+                if(bind.binded.indexOf(dev.id)<0){
+                    bind.binded.push(dev.id);
 
-                if(dev.elem!==null){
-                    switch(dev.type){
-              
-                        //lights
-                        case typeEnm.array2x: bind.lightArray(dev, 2); break;
-                        case typeEnm.array4x: bind.lightArray(dev, 4); break;
-                        case typeEnm.array8x: bind.lightArray(dev, 8); break;
-                        case typeEnm.light:   bind.light(dev); break;
-                        case typeEnm.fxanim:  bind.fxanim(dev); break;
-
-                        //weather
-                        case typeEnm.enviroment: bind.weather(dev); break;
-
-                        //fan
-                        case typeEnm.fan: bind.fan(dev); break;
-
-                        //ac
-
-                        //node
-
-                        default: break;
+                    if(dev.elem!==null){
+                        switch(dev.type){
+                  
+                            //lights
+                            case typeEnm.array2x: bind.lightArray(dev, 2); break;
+                            case typeEnm.array4x: bind.lightArray(dev, 4); break;
+                            case typeEnm.array8x: bind.lightArray(dev, 8); break;
+                            case typeEnm.light:   bind.light(dev); break;
+                            case typeEnm.fxanim:  bind.fxanim(dev); break;
+    
+                            //weather
+                            case typeEnm.enviroment: bind.weather(dev); break;
+    
+                            //fan
+                            case typeEnm.fan: bind.fan(dev); break;
+    
+                            //ac
+    
+                            //node
+    
+                            default: break;
+                        }
                     }
-                }
+    
+
+                };
             }
         }); 
     },

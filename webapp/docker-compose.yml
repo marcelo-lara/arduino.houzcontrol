@@ -5,7 +5,10 @@ services:
     build: 
       context: .
     container_name: 'houzcontrol'
-    #restart: 'always'
-    #environment:
+    restart: 'always'
+    environment:
+      PORT: '/dev/ttyUSB0' 
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"
     ports:
       - '3000:3000'
