@@ -1,7 +1,8 @@
 {
-    "board": "arduino:avr:uno",
-    "port": "COM3",
+    "board": "arduino:avr:mega",
+    "port": "COM10",
     "output": "../build",
-    "sketch": "houz_suite\\houz_suite.ino",
-    "programmer": "AVRISP mkII"
+    "sketch": "_dmx\\poc_mega1\\poc_mega1.ino",
+    "programmer": "AVRISP mkII",
+    "configuration": "cpu=atmega2560"
 }

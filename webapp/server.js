@@ -7,7 +7,7 @@ const serial = require('serialport')
 const sp_readline = serial.parsers.Readline
 const enums = require('./app/enums');
 const houzcontrol = require('./app/houzcontrol');
-const portName = process.env.PORT; //"/dev/ttyUSB0"; //com7
+const portName = "com10"; //"/dev/ttyUSB0"; //com7
 
 const port = 3000
 const Server = http.createServer(app)
