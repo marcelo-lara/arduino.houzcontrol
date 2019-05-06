@@ -63,7 +63,6 @@ void Houz::rfSetup(byte NodeId, RF24 &_radio, byte _statusLed, Stream &serial) {
 void Houz::setup() {
 	wdt_enable(WDTO_8S);
 	radioSetup();
-	
 
 	if (node_id == server_node) return;
 

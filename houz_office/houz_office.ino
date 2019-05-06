@@ -3,7 +3,6 @@ Name:		external_sensors.ino
 Created:	05-Apr-17 21:42:21
 Author:	DarkAngel
 */
-
 #include <Houz.h>
 
 //light sensor
@@ -16,8 +15,8 @@ Author:	DarkAngel
 HouzWeather houzWeather(bme280_SDA, bme280_SCL);
 
 //lights
-#define ceilingLightPin		8
-#define ceilingLightSwitch	7
+#define lightRelay			8
+#define inSwitch			7
 #define statusLed			6
 
 //ir control
@@ -34,13 +33,8 @@ IRsend irsend;
 RF24 radio(rfCE, rfCS);
 Houz houz(office_node, radio, statusLed, Serial);
 
-
 ///////////////////////////
 //functional
-bool lightOn = 0;
-bool airConditionerOn = 0;
-int  airConditionerTemp = 24;
-
 void setup() {
 	Serial.begin(115200);
 	houz.setup();
@@ -52,16 +46,15 @@ void setup() {
 	houz.inSwitchSetup(inSwitch);
 }
 void loop() {
-	if (!houz.hasData()) continue;
+	if (!houz.hasData()) return;
 	deviceData device = houz.getData();
-	
 	switch (device.id) {
 
 	case suite_node:
 		switch (device.cmd) {
 		case CMD_QUERY:
 			houz.radioSend(houzWeather.getWeather());
-			houz.radioSend(CMD_VALUE, office_light, getMainLight() ? 1 : 0);
+			houz.radioSend(CMD_VALUE, office_light, getLight() ? 1 : 0);
 			break;
 
 		case CMD_SET:
@@ -84,7 +77,6 @@ void loop() {
 
 			case scene_Goodbye:
 				houz.pushData(CMD_SET, office_light, 0);
-				//houz.pushData(CMD_SET, office_AC, 0);
 				break;
 			}
 		}
@@ -103,19 +95,11 @@ void loop() {
 
 	//appliances
 	case office_light:
-		Serial.println(F("light"));
-		if (device.cmd == CMD_SET) setLight(device.payload == 1);
-		houz.radioSend(CMD_VALUE, office_light, lightOn? 1 : 0);
+		if (device.cmd == CMD_SET)
+			houz.radioSend(CMD_VALUE, office_light, setLight(device.payload == 1)? 1 : 0);
+		else
+			houz.radioSend(CMD_VALUE, office_light, getLight()? 1 : 0);
 		break;
-
-	// case office_AC:
-	// 	Serial.println(F("ac"));
-	// 	if (device.cmd == CMD_SET) {
-	// 		airConditionerOn = (device.payload == 1);
-	// 		ACsendCommand(airConditionerOn ? acBghPowerOn : acBghPowerOff);
-	// 	}
-	// 	houz.radioSend(CMD_VALUE, office_AC, airConditionerOn ? 1 : 0);
-	// 	break;
 
 	default:
 		Serial.print(F("??\t"));
@@ -136,50 +120,10 @@ u32 lightLevel() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // I/O
 bool setLight(bool status) {
-	lightOn = status;
-	digitalWrite(ceilingLightPin, status ? LOW : HIGH);
-
-	Serial.print(F("light\t"));
-	Serial.println((lightOn) ? F("on") : F("off"));
-	return true;
+	digitalWrite(lightRelay, status ? LOW : HIGH);
+	return status;
 };
 
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// infrared
-// void ACsendCommand(unsigned long acCode) {
-// 	//store status
-// 	switch (acCode)
-// 	{
-// 	case acBghPowerOn:
-// 		airConditionerOn = 1;
-// 	case acBghPowerOff:
-// 		airConditionerOn = 0;
-// 	default:
-// 		break;
-// 	}
-
-// 	//send command
-// 	for (int i = 0; i < 3; i++) {
-// 		irsend.sendLG(acCode, 28);
-// 		delay(100);
-// 	}
-// }
-
-// unsigned long ACtempCode(u8 temp) {
-// 	switch (temp)
-// 	{
-// 	case 18: return acBghTemp18;
-// 	case 19: return acBghTemp19;
-// 	case 20: return acBghTemp20;
-// 	case 21: return acBghTemp21;
-// 	case 22: return acBghTemp22;
-// 	case 23: return acBghTemp23;
-// 	case 24: return acBghTemp24;
-// 	case 25: return acBghTemp25;
-// 	case 26: return acBghTemp26;
-// 	default: return acBghTemp24;
-// 	}
-// }
-
+bool getLight(){
+	return (digitalRead(lightRelay)==LOW? true: false);
+}

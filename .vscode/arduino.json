@@ -2,7 +2,7 @@
     "board": "arduino:avr:mega",
     "port": "COM10",
     "output": "../build",
-    "sketch": "_dmx\\poc_mega1\\poc_mega1.ino",
+    "sketch": "houz_office\\houz_office.ino",
     "programmer": "AVRISP mkII",
     "configuration": "cpu=atmega2560"
 }
