@@ -39,5 +39,8 @@
 #define living_fx			0x37 //N3DC370000\n - 55 fx render
 #define living_AC			0x38 //N3DC380001\n
 
+//WeMos
+#define wemos_node			0x4	 //N3DC04F0F0\n
+
 // Frontdesk
 #define frontdesk_node		0x5
