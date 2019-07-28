@@ -27,8 +27,8 @@ TODO:
 #define rf_suite_rx		0xB2
 #define rf_living_tx	0xA3
 #define rf_living_rx	0xB3
-#define rf_wemos_tx		0xA4
-#define rf_wemos_rx		0xB4
+#define rf_dummy_tx		0xA4
+#define rf_dummy_rx		0xB4
 
 #define statusled_low	0x33
 #define statusled_idle	0x66
@@ -169,6 +169,7 @@ void Houz::radioSetup()
 
 	if (node_id == server_node) {
 	 	console->println(radio_status ? F("[online]") : F("[offline]"));
+		radio->printDetails();
 	} else {
 		console->print(F("rf\t"));
 		console->println(radio_status ? F("online") : F("offline"));
@@ -192,7 +193,7 @@ void Houz::setPipes() {
 		radio->openReadingPipe(1, rf_office_tx);
 		radio->openReadingPipe(2, rf_suite_tx);
 		radio->openReadingPipe(3, rf_living_tx);
-		radio->openReadingPipe(4, rf_wemos_tx);
+		radio->openReadingPipe(4, rf_dummy_tx);
 		break;
 
 	case office_node:
@@ -210,9 +211,9 @@ void Houz::setPipes() {
 		radio->openReadingPipe(1, rf_living_rx);
 		break;
 
-	case wemos_node: 
-		radio->openWritingPipe(rf_wemos_tx);
-		radio->openReadingPipe(1, rf_wemos_rx);
+	case dummy_node: 
+		radio->openWritingPipe(rf_dummy_tx);
+		radio->openReadingPipe(1, rf_dummy_rx);
 		break;
 
 	default:
@@ -359,7 +360,7 @@ void Houz::radioWrite() {
 		case office_node: writeAddress = rf_office_rx; break;
 		case suite_node: writeAddress = rf_suite_rx; break;
 		case living_node: writeAddress = rf_living_rx; break;
-		case wemos_node: writeAddress = rf_wemos_rx; break;
+		case dummy_node: writeAddress = rf_dummy_rx; break;
 		}
 		radio->openWritingPipe(writeAddress);
 	};
