@@ -17,19 +17,6 @@ TODO:
 #include <printf.h>
 #include <avr/wdt.h> //watchdog
 
-//radio setup
-#define rfChannel		0x5B   
-#define rf_server_tx	0xA0
-#define rf_server_rx	0xB0
-#define rf_office_tx	0xA1
-#define rf_office_rx	0xB1
-#define rf_suite_tx		0xA2
-#define rf_suite_rx		0xB2
-#define rf_living_tx	0xA3
-#define rf_living_rx	0xB3
-#define rf_dummy_tx		0xA4
-#define rf_dummy_rx		0xB4
-
 #define statusled_low	0x33
 #define statusled_idle	0x66
 #define statusled_high	0x99

@@ -4,6 +4,7 @@
 
 #include <HouzDevicesModel.h>
 #include <HouzDevices.h>
+#include <HouzRfConfig.h>
 #include <HouzDevicesCodec.h>
 
 #include <HouzIrCodes.h>
